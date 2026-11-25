@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "unity": {
+      "command": "${LOCALAPPDATA}\\Unity\\bin\\unity.exe",
+      "args": ["mcp", "--project-path", "."]
+    }
+  }
+}
