@@ -66,6 +66,10 @@ namespace Scorpion.Gimmicks
         {
             Rigidbody obstacle = UnityEngine.Object.Instantiate(
                 _prefab, position + (Vector3)_spawnOffset, _prefab.rotation);
+            if (!obstacle.TryGetComponent(out ExplosiveObstacle _) && !obstacle.TryGetComponent(out AttackableObstacle _))
+            {
+                obstacle.gameObject.AddComponent<AttackableObstacle>();
+            }
 
             context.RegisterCleanup(() =>
             {
