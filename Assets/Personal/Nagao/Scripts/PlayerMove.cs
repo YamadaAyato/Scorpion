@@ -46,6 +46,8 @@ public class PlayerMove : MonoBehaviour
 
     private readonly HashSet<Collider> _groundContacts = new();
     private readonly Dictionary<Collider, float> _sideContacts = new();
+    private readonly LinkedList<float> _moveSpeedMultipliers = new();
+    private readonly LinkedList<float> _jumpPowerMultipliers = new();
     private PlayerAttack _playerAttack;
     private Rigidbody _rigidbody;
     private PhysicsMaterial _bodyMaterial;
@@ -54,6 +56,10 @@ public class PlayerMove : MonoBehaviour
     private bool _isJumpButtonPressed;
     private float _chargeJumpTime;
     private Coroutine _stunRoutine;
+    private float _lastGroundedTime = float.NegativeInfinity;
+    private float _ignoreGroundUntil;
+
+    private const float JUMP_GRACE_SECONDS = 0.08f;
 
     /// <summary>
     ///     指定の足場に乗っているとき、重さと支点からの横距離を掛けた値を取得する
@@ -98,6 +104,24 @@ public class PlayerMove : MonoBehaviour
         _stunRoutine = StartCoroutine(StunCoroutine(duration));
     }
 
+    /// <summary>
+    ///     移動速度に一時倍率を適用し、この効果だけを解除する処理を返す
+    /// </summary>
+    internal Action ApplyMoveSpeedMultiplier(float multiplier)
+    {
+        LinkedListNode<float> effect = _moveSpeedMultipliers.AddLast(multiplier);
+        return () => _moveSpeedMultipliers.Remove(effect);
+    }
+
+    /// <summary>
+    ///     ジャンプ力に一時倍率を適用し、この効果だけを解除する処理を返す
+    /// </summary>
+    internal Action ApplyJumpPowerMultiplier(float multiplier)
+    {
+        LinkedListNode<float> effect = _jumpPowerMultipliers.AddLast(multiplier);
+        return () => _jumpPowerMultipliers.Remove(effect);
+    }
+
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
@@ -119,7 +143,7 @@ public class PlayerMove : MonoBehaviour
         bool jumpPressed = _useArrowKeys
             ? keyboard.upArrowKey.wasPressedThisFrame || keyboard.numpad8Key.wasPressedThisFrame
             : keyboard.wKey.wasPressedThisFrame;
-        if (jumpPressed && IsGrounded)
+        if (jumpPressed && CanJump())
         {
             _jumpRequested = true;
             _isJumpButtonPressed = true;
@@ -144,18 +168,27 @@ public class PlayerMove : MonoBehaviour
 
     private void FixedUpdate()
     {
+        _groundContacts.RemoveWhere(contact => contact == null || !contact.enabled || !contact.gameObject.activeInHierarchy);
+        if (IsGrounded)
+        {
+            _lastGroundedTime = Time.fixedTime;
+        }
+
         if (!_isInputEnabled || _isStunned)
         {
             return;
         }
 
-        bool canJump = _jumpRequested && IsGrounded;
+        bool canJump = _jumpRequested && CanJump();
         _jumpRequested = false;
         if (canJump)
         {
             _chargeJumpTime = 0f;
             _groundContacts.Clear();
-            _rigidbody.AddForce(Vector3.up * _jumpPower, ForceMode.Impulse);
+            _lastGroundedTime = float.NegativeInfinity;
+            _ignoreGroundUntil = Time.fixedTime + 2f * Time.fixedDeltaTime;
+            float multiplier = _jumpPowerMultipliers.Last?.Value ?? 1f;
+            _rigidbody.AddForce(Vector3.up * (_jumpPower * multiplier), ForceMode.Impulse);
             OnJumpStarted?.Invoke();
         }
         else
@@ -169,6 +202,8 @@ public class PlayerMove : MonoBehaviour
     private void OnDisable()
     {
         _groundContacts.Clear();
+        _lastGroundedTime = float.NegativeInfinity;
+        _ignoreGroundUntil = 0f;
         _sideContacts.Clear();
         _jumpRequested = false;
         _isJumpButtonPressed = false;
@@ -253,7 +288,8 @@ public class PlayerMove : MonoBehaviour
             }
         }
 
-        float targetSpeed = moveX * (IsGrounded ? _moveSpeed : _airMoveSpeed);
+        float multiplier = _moveSpeedMultipliers.Last?.Value ?? 1f;
+        float targetSpeed = moveX * (IsGrounded ? _moveSpeed : _airMoveSpeed) * multiplier;
         float acceleration = IsGrounded ? _groundAcceleration : _airAcceleration;
         Vector3 velocity = _rigidbody.linearVelocity;
         // 衝突による速度変化を残しながら、入力方向へ徐々に加速する
@@ -278,7 +314,14 @@ public class PlayerMove : MonoBehaviour
         }
 
         _chargeJumpTime += Time.fixedDeltaTime;
-        _rigidbody.AddForce(Vector3.up * _chargeJumpPower, ForceMode.Acceleration);
+        float multiplier = _jumpPowerMultipliers.Last?.Value ?? 1f;
+        _rigidbody.AddForce(Vector3.up * (_chargeJumpPower * multiplier), ForceMode.Acceleration);
+    }
+
+    /// <summary> 足場の継ぎ目で接触が途切れた直後もジャンプを許可する </summary>
+    private bool CanJump()
+    {
+        return IsGrounded || Time.time - _lastGroundedTime <= JUMP_GRACE_SECONDS;
     }
 
     /// <summary>
@@ -288,36 +331,42 @@ public class PlayerMove : MonoBehaviour
     {
         Collider other = collision.collider;
         _sideContacts.Remove(other);
+        // 歯車のように床と側面が同じコライダーにある場合、床に乗っている間は側面を壁扱いにしない
+        bool hasFloorContact = false;
+        float sideNormalX = 0f;
+        float centerY = _rigidbody.worldCenterOfMass.y;
         for (int i = 0; i < collision.contactCount; i++)
         {
-            Vector3 normal = collision.GetContact(i).normal;
-            if (Mathf.Abs(normal.y) < 0.5f && Mathf.Abs(normal.x) > 0.6f)
+            ContactPoint contact = collision.GetContact(i);
+            Vector3 normal = contact.normal;
+            if (normal.y > 0.5f && contact.point.y < centerY)
             {
-                _sideContacts[other] = normal.x;
+                hasFloorContact = true;
                 break;
+            }
+            if (sideNormalX == 0f && Mathf.Abs(normal.y) < 0.5f && Mathf.Abs(normal.x) > 0.6f)
+            {
+                sideNormalX = normal.x;
             }
         }
 
-        if (!collision.gameObject.CompareTag("Ground"))
+        if (!hasFloorContact && sideNormalX != 0f)
         {
+            _sideContacts[other] = sideNormalX;
+        }
+
+        Rigidbody support = other.attachedRigidbody;
+        bool isGround = other.CompareTag("Ground") || (support != null && support.CompareTag("Ground"));
+        // 足場に持ち上げられている間も、足元に床があれば接地する
+        if (hasFloorContact && isGround && Time.fixedTime >= _ignoreGroundUntil)
+        {
+            _groundContacts.Add(other);
+            _lastGroundedTime = Time.fixedTime;
+            _isJumpButtonPressed = false;
             return;
         }
 
-        // 踏み切った直後の残留接触と、足場の側面への衝突を接地扱いにしない。
-        if (IsGrounded || _rigidbody.linearVelocity.y <= 0.1f)
-        {
-            for (int i = 0; i < collision.contactCount; i++)
-            {
-                if (collision.GetContact(i).normal.y > 0.5f)
-                {
-                    _groundContacts.Add(collision.collider);
-                    _isJumpButtonPressed = false;
-                    return;
-                }
-            }
-        }
-
-        _groundContacts.Remove(collision.collider);
+        _groundContacts.Remove(other);
     }
 
     /// <summary>
