@@ -264,6 +264,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3c886db405e328543a48a3d870e2f4f2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 625612616431841404}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3c886db405e328543a48a3d870e2f4f2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3958277146029481530}
   m_SourcePrefab: {fileID: 100100000, guid: 3c886db405e328543a48a3d870e2f4f2, type: 3}
 --- !u!1 &8641042541237240698 stripped
 GameObject:
@@ -651,3 +654,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3c886db405e328543a48a3d870e2f4f2, type: 3}
   m_PrefabInstance: {fileID: 8874993673074458155}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &3958277146029481530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8641042541237240698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89161a4a975042b4841666be20f1a82b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Scorpion.Effects.BuffAuraEffect
+  _auraMaterial: {fileID: 2100000, guid: 25236d6974db4e41bc4948a267f166e3, type: 2}
+  _trailMaterial: {fileID: 2100000, guid: dbf9d8aba6d344859977e4e480308207, type: 2}
