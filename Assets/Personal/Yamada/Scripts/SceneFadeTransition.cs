@@ -12,7 +12,7 @@ namespace Scorpion.UI
     [RequireComponent(typeof(CanvasGroup))]
     public sealed class SceneFadeTransition : MonoBehaviour
     {
-        [SerializeField, Tooltip("Build Settingsに登録した遷移先シーンのパス")]
+        [SerializeField, Tooltip("Build Settingsに登録した遷移先シーンのパス（.unityを除く）")]
         private string _targetScenePath;
         [SerializeField, Min(0f), Tooltip("暗転と明転にそれぞれかける時間（秒）")]
         private float _fadeSeconds = 0.4f;
@@ -30,7 +30,8 @@ namespace Scorpion.UI
                 return;
             }
 
-            if (!Application.CanStreamedLevelBeLoaded(_targetScenePath))
+            int buildIndex = SceneUtility.GetBuildIndexByScenePath(_targetScenePath + ".unity");
+            if (buildIndex < 0)
             {
                 Debug.LogError($"[{nameof(SceneFadeTransition)}] 遷移先がビルドのシーン一覧にありません: {_targetScenePath}", this);
                 return;
@@ -43,7 +44,7 @@ namespace Scorpion.UI
                 EventSystem.current.SetSelectedGameObject(null);
             }
 
-            StartCoroutine(LoadWithFade());
+            StartCoroutine(LoadWithFade(buildIndex));
         }
 
         private void Awake()
@@ -56,13 +57,13 @@ namespace Scorpion.UI
         /// <summary>
         ///     暗転を維持したまま遷移し、明転が終わったらオーバーレイを片付ける
         /// </summary>
-        private IEnumerator LoadWithFade()
+        private IEnumerator LoadWithFade(int buildIndex)
         {
             yield return FadeTo(1f);
             yield return null;
 
             DontDestroyOnLoad(gameObject);
-            yield return SceneManager.LoadSceneAsync(_targetScenePath, LoadSceneMode.Single);
+            yield return SceneManager.LoadSceneAsync(buildIndex, LoadSceneMode.Single);
             yield return FadeTo(0f);
 
             _overlay.blocksRaycasts = false;
