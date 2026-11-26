@@ -311,6 +311,7 @@ namespace Scorpion.Effects
             float radius = GetBaseRadius() * GetOrDefault(_ribbonRadiusScales, index, 1f) *
                            Mathf.Max(_radiusOverTime.Evaluate(t), 0f);
 
+            // リボン同士が重ならないよう、周上の開始角度を等間隔にずらす
             float direction = _clockwiseFromAbove ? -1f : 1f;
             float phase = index * Mathf.PI * 2f / count;
             float angle = phase + direction * _spinProgress.Evaluate(t) * _revolutions * Mathf.PI * 2f;

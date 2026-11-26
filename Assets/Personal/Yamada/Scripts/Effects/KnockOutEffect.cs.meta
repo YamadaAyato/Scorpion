@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 7dad8acfb3ac4ca7a0e916541da853df
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _playerOne: {instanceID: 0}
+  - _playerTwo: {instanceID: 0}
+  - _camera: {instanceID: 0}
+  - _beamMaterial: {fileID: 2100000, guid: f684f1f11fa74e60992d8e7d5ac7f7c4, type: 2}
+  - _sparkleMaterial: {fileID: 2100000, guid: 0648142a5bee48d8bca373a9d5cf460b, type: 2}
+  - _puffMaterial: {fileID: 2100000, guid: 0c4ca33800614a949e64f824b230203e, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

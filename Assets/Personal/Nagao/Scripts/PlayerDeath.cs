@@ -96,6 +96,7 @@ public class PlayerDeath : MonoBehaviour
             return;
         }
 
+        // 接地の有無と切り離し、復活からの経過時間で点滅と無敵を終える
         float remaining = _protectionEndsAt - Time.time;
         if (remaining <= 0f)
         {
@@ -136,6 +137,7 @@ public class PlayerDeath : MonoBehaviour
                 if (body != null && body.enabled && !body.isTrigger && body.attachedRigidbody == _rigidbody &&
                     !Physics.GetIgnoreCollision(body, other))
                 {
+                    // 今回無視した組だけを記録し、元から無視されていた組には触れない
                     Physics.IgnoreCollision(body, other);
                     _ignoredCollisions.Add((body, other));
                 }

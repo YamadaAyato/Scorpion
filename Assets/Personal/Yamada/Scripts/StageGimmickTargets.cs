@@ -139,6 +139,7 @@ namespace Scorpion.Gimmicks
                 return;
             }
 
+            // 同時に加速が発動した場合は最大倍率を使い、反転は有効な効果がある間続ける
             float speed = 1f;
             foreach (float multiplier in _gearSpeedMultipliers)
             {
@@ -177,6 +178,7 @@ namespace Scorpion.Gimmicks
                 }
             }
 
+            // 両者の荷重から目標角度を求め、回転速度に応じて減衰を加える
             float moment = GetPlayerMoment(_playerOne) + GetPlayerMoment(_playerTwo);
             float targetTilt = Mathf.Clamp(-moment * _seesawDegreesPerMoment, -_seesawMaxTilt, _seesawMaxTilt);
             float angularAcceleration = (targetTilt - limitedTilt) * Mathf.Deg2Rad * _seesawRestoringForce;

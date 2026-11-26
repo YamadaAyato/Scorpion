@@ -51,6 +51,7 @@ namespace Scorpion.Gimmicks
         /// </summary>
         public void StartStage(StageGimmickSettings settings, float remainingSeconds, StageGimmickTargets stageTargets = null)
         {
+            // 終了通知から別のステージが始まった場合は、後から始まったステージを優先する
             int version = _stageVersion + 1;
             EndStage();
             if (version != _stageVersion || !isActiveAndEnabled ||
@@ -136,6 +137,8 @@ namespace Scorpion.Gimmicks
             }
 
             ActiveGimmick[] finished = _activeGimmicks.ToArray();
+
+            // 終了通知の購読側が次のステージを始めても、今回の解除対象が混ざらないよう先に一覧を空にする
             _activeGimmicks.Clear();
             foreach (ActiveGimmick active in finished)
             {
@@ -188,6 +191,7 @@ namespace Scorpion.Gimmicks
                 }
             }
 
+            // 各候補が重みの分だけ持つ区間から、当選した候補を探す
             double roll = UnityEngine.Random.value * totalWeight;
             GimmickDefinition lastCandidate = null;
             foreach (GimmickSpawnEntry entry in entries)
@@ -234,6 +238,7 @@ namespace Scorpion.Gimmicks
                 return;
             }
 
+            // 途中まで適用して失敗した効果や、発動中にステージが切り替わった場合の効果を戻す
             if (!activated || version != _stageVersion)
             {
                 context.Clear();

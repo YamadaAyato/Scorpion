@@ -193,6 +193,7 @@ namespace Scorpion.Effects
         /// </summary>
         private void TryEmitLandingDust()
         {
+            // 短い接地切れや落下速度の小さい着地では、足元の粒を出さない
             float fallSpeed = -_lastAirVelocityY;
             if (!_emitOnLanding || _airTimeSeconds < _minAirTimeSeconds || fallSpeed < _landingFallSpeedRange.x)
             {

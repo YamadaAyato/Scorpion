@@ -53,6 +53,8 @@ namespace Scorpion.Gimmicks
             {
                 int index = UnityEngine.Random.Range(0, points.Count);
                 Spawn(context, points[index].position);
+
+                // 同じ発動で同じ地点を選び直さないようにする
                 points.RemoveAt(index);
             }
 

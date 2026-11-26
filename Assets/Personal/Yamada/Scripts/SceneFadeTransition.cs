@@ -62,6 +62,8 @@ namespace Scorpion.UI
         private IEnumerator LoadWithFade(int buildIndex)
         {
             yield return FadeTo(1f);
+
+            // 読み込みを始める前に、完全に暗転した画面を1フレーム表示する
             yield return null;
 
             DontDestroyOnLoad(gameObject);
