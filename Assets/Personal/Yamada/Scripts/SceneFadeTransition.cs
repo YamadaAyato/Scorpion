@@ -20,6 +20,8 @@ namespace Scorpion.UI
         private CanvasGroup _overlay;
         private bool _isTransitioning;
 
+        private const float MAX_FADE_STEP_SECONDS = 0.1f;
+
         /// <summary>
         ///     フェードを開始し、読み込み中の重複操作を受け付けない
         /// </summary>
@@ -79,7 +81,8 @@ namespace Scorpion.UI
             float elapsed = 0f;
             while (elapsed < _fadeSeconds)
             {
-                elapsed += Time.unscaledDeltaTime;
+                // 読み込み直後などにフレームが止まっても、フェードを一度に飛ばさない
+                elapsed += Mathf.Min(Time.unscaledDeltaTime, MAX_FADE_STEP_SECONDS);
                 _overlay.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / _fadeSeconds);
                 yield return null;
             }
