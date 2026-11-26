@@ -286,6 +286,11 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(1f);
         }
 
+        OnStageCueChanged?.Invoke("START");
+        yield return new WaitForSeconds(0.5f);
+        _stageCueCoroutine = null;
+        OnStageCueChanged?.Invoke(string.Empty);
+
         float duration = stage.DurationSeconds;
         if (_gimmickManager != null)
         {
@@ -297,10 +302,6 @@ public class GameManager : MonoBehaviour
 
         SetPlayerInputEnabled(true);
         _timer.StartStageTimer(duration);
-        OnStageCueChanged?.Invoke("START");
-        yield return new WaitForSeconds(0.5f);
-        _stageCueCoroutine = null;
-        OnStageCueChanged?.Invoke(string.Empty);
     }
 
     /// <summary>

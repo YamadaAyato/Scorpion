@@ -1749,6 +1749,7 @@ GameObject:
   - component: {fileID: 692804749}
   - component: {fileID: 692804748}
   - component: {fileID: 692804747}
+  - component: {fileID: 692804750}
   m_Layer: 5
   m_Name: StartButton
   m_TagString: Untagged
@@ -1870,6 +1871,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 692804745}
   m_CullTransparentMesh: 1
+--- !u!114 &692804750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 692804745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.EventTrigger
+  m_Delegates: []
 --- !u!1 &717393971
 GameObject:
   m_ObjectHideFlags: 0
