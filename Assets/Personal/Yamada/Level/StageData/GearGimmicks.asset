@@ -32,6 +32,8 @@ MonoBehaviour:
     _weight: 2
   - _definition: {fileID: 11400000, guid: 8b8aa45ec5a26624d8525c38742aa944, type: 2}
     _weight: 2
+  - _definition: {fileID: 11400000, guid: b3e81dd208e733046a1942194b4b16e6, type: 2}
+    _weight: 2
   _rushStartGimmicks:
   - {fileID: 11400000, guid: ed43c99f8fc09794985c2b6f26d89595, type: 2}
   - {fileID: 11400000, guid: 8b8aa45ec5a26624d8525c38742aa944, type: 2}

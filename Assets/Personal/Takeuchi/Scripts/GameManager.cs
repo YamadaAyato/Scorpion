@@ -252,6 +252,12 @@ public class GameManager : MonoBehaviour
         if (stage.Prefab != null)
         {
             _stageInstance = Instantiate(stage.Prefab);
+            if (_stageInstance.TryGetComponent(out StageGimmickTargets targets))
+            {
+                PlayerMove playerOne = _playerOneObject != null ? _playerOneObject.GetComponent<PlayerMove>() : null;
+                PlayerMove playerTwo = _playerTwoObject != null ? _playerTwoObject.GetComponent<PlayerMove>() : null;
+                targets.SetPlayers(playerOne, playerTwo);
+            }
         }
 
         PlacePlayer(1, isRespawn: false);
