@@ -18,9 +18,12 @@ namespace Scorpion.UI
             _player = player;
             _body = player != null ? player.GetComponent<Collider>() : null;
 
-            _arrow = CreateText(_canvasRect, font, label + " Arrow", "▼", 27, arrowColor);
-            _label = CreateText(_arrow.rectTransform, font, label + " Label", label, 20, Color.white);
-            _label.rectTransform.anchoredPosition = new Vector2(0f, 25f);
+            Font arrowFont = font != null && font.HasCharacter('▼')
+                ? font
+                : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            _arrow = CreateText(_canvasRect, arrowFont, label + " Arrow", "▼", 32, arrowColor);
+            _label = CreateText(_arrow.rectTransform, font, label + " Label", label, 24, Color.white);
+            _label.rectTransform.anchoredPosition = new Vector2(0f, 30f);
             Hide();
         }
 
@@ -83,14 +86,17 @@ namespace Scorpion.UI
             graphic.font = font;
             graphic.text = text;
             graphic.fontSize = size;
-            graphic.fontStyle = FontStyle.Bold;
             graphic.alignment = TextAnchor.MiddleCenter;
+            graphic.verticalOverflow = VerticalWrapMode.Overflow;
             graphic.color = color;
             graphic.raycastTarget = false;
             graphic.rectTransform.sizeDelta = new Vector2(110f, 32f);
-            Outline outline = item.AddComponent<Outline>();
-            outline.effectColor = new Color(0f, 0f, 0f, 0.85f);
-            outline.effectDistance = new Vector2(1.5f, -1.5f);
+            PopOutline outline = item.AddComponent<PopOutline>();
+            outline.effectColor = new Color(0.27f, 0.16f, 0.4f, 1f);
+            outline.effectDistance = new Vector2(2f, -2f);
+            Shadow shadow = item.AddComponent<Shadow>();
+            shadow.effectColor = new Color(0.27f, 0.16f, 0.4f, 0.45f);
+            shadow.effectDistance = new Vector2(0f, -3f);
             return graphic;
         }
     }

@@ -61,6 +61,8 @@ public class GameManager : MonoBehaviour
     internal GameObject PlayerOneObject => _playerOneObject;
     /// <summary> UIが追従する2P本体を取得する </summary>
     internal GameObject PlayerTwoObject => _playerTwoObject;
+    /// <summary> HUDが発動通知を購読するギミック管理を取得する </summary>
+    internal GimmickManager Gimmicks => _gimmickManager;
 
     [SerializeField, Tooltip("1P本体")]
     private GameObject _playerOneObject;
