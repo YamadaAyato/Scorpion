@@ -5,7 +5,7 @@ using Scorpion.Gimmicks;
 using UnityEngine;
 
 /// <summary>
-///     ステージの制限時間、シーン内の構成、復活位置とギミックを設定する
+///     ステージPrefab、制限時間とギミックを設定する
 /// </summary>
 [Serializable]
 public struct StageDefinition
@@ -17,6 +17,8 @@ public struct StageDefinition
 
     /// <summary> 画面に表示するステージ名を取得する </summary>
     public string StageName => _stageName;
+    /// <summary> ステージ切り替え時に生成するPrefabを取得する </summary>
+    public StageLayout Prefab => _prefab;
     /// <summary> ステージ中に有効化するルートオブジェクトを取得する </summary>
     public GameObject[] StageRoots => _stageRoots;
     /// <summary> 1Pのステージ専用の復活地点を取得する </summary>
@@ -30,7 +32,9 @@ public struct StageDefinition
     private float _durationSeconds;
     [SerializeField, Tooltip("画面に表示するステージ名")]
     private string _stageName;
-    [SerializeField, Tooltip("このステージで有効化するオブジェクト群")]
+    [SerializeField, Tooltip("開始地点と復活地点を設定したステージPrefab")]
+    private StageLayout _prefab;
+    [SerializeField, Tooltip("Prefab未設定のステージで有効化する既存のシーン内オブジェクト群")]
     private GameObject[] _stageRoots;
     [SerializeField, Tooltip("1Pの復活地点。未指定の場合は試合共通の位置を使用する")]
     private Transform _playerOneSpawn;
@@ -87,6 +91,7 @@ public class GameManager : MonoBehaviour
     private readonly Coroutine[] _respawnCoroutines = new Coroutine[2];
     private TimeManager _timer;
     private Coroutine _stageCueCoroutine;
+    private StageLayout _stageInstance;
 
     /// <summary>
     ///     指定されたプレイヤーが復活待ちかどうかを取得する
@@ -116,7 +121,8 @@ public class GameManager : MonoBehaviour
 
         ScoreManager.Instance.ResetScore();
         IsMatchActive = true;
-        ApplyStage(0);
+        PrepareStage(0);
+        BeginStage();
     }
 
     /// <summary>
@@ -188,6 +194,7 @@ public class GameManager : MonoBehaviour
         if (Instance == this)
         {
             StopStage();
+            ClearStageInstance();
             AttachTimer(null);
         }
     }
@@ -251,12 +258,28 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     足場を切り替え、プレイヤーを配置して次のステージを開始する
+    ///     ステージPrefabを入れ替え、プレイヤーを開始地点に配置する
     /// </summary>
-    private void ApplyStage(int stageIndex)
+    private void PrepareStage(int stageIndex)
     {
+        ClearStageInstance();
         CurrentStageIndex = stageIndex;
         StageDefinition stage = _stages[stageIndex];
+        SetLegacyStageRoots(stage);
+        if (stage.Prefab != null)
+        {
+            _stageInstance = Instantiate(stage.Prefab);
+        }
+
+        PlacePlayer(1, isRespawn: false);
+        PlacePlayer(2, isRespawn: false);
+    }
+
+    /// <summary>
+    ///     シーン内に足場を置く既存のステージ設定を切り替える
+    /// </summary>
+    private void SetLegacyStageRoots(StageDefinition stage)
+    {
         for (int i = 0; i < _stages.Count; i++)
         {
             GameObject[] roots = _stages[i].StageRoots;
@@ -269,14 +292,21 @@ public class GameManager : MonoBehaviour
             {
                 if (root != null)
                 {
-                    root.SetActive(stage.StageRoots != null && Array.IndexOf(stage.StageRoots, root) >= 0);
+                    root.SetActive(stage.Prefab == null && stage.StageRoots != null &&
+                        Array.IndexOf(stage.StageRoots, root) >= 0);
                 }
             }
         }
 
-        RespawnPlayerImmediate(1);
-        RespawnPlayerImmediate(2);
-        OnStageStarted?.Invoke(stageIndex, stage);
+    }
+
+    /// <summary>
+    ///     準備済みのステージの開始を通知し、カウントダウンを始める
+    /// </summary>
+    private void BeginStage()
+    {
+        StageDefinition stage = _stages[CurrentStageIndex];
+        OnStageStarted?.Invoke(CurrentStageIndex, stage);
         _stageCueCoroutine = StartCoroutine(CountDownToStageStart(stage));
     }
 
@@ -311,13 +341,25 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private IEnumerator AdvanceAfterFinish(int nextStageIndex)
     {
-        yield return new WaitForSeconds(_finishDisplaySeconds);
+        if (nextStageIndex < _stages.Count)
+        {
+            // FINISH が画面を覆う間に入れ替え、表示が消えてからカウントダウンに進む
+            float halfDuration = _finishDisplaySeconds * 0.5f;
+            yield return new WaitForSeconds(halfDuration);
+            PrepareStage(nextStageIndex);
+            yield return new WaitForSeconds(halfDuration);
+        }
+        else
+        {
+            yield return new WaitForSeconds(_finishDisplaySeconds);
+        }
+
         _stageCueCoroutine = null;
         OnStageCueChanged?.Invoke(string.Empty);
         if (nextStageIndex < _stages.Count)
         {
             IsMatchActive = true;
-            ApplyStage(nextStageIndex);
+            BeginStage();
         }
         else
         {
@@ -357,14 +399,14 @@ public class GameManager : MonoBehaviour
         _respawnCoroutines[playerIndex - 1] = null;
         if (IsMatchActive && _timer.IsTimerRunning)
         {
-            RespawnPlayerImmediate(playerIndex);
+            PlacePlayer(playerIndex, isRespawn: true);
         }
     }
 
     /// <summary>
-    ///     プレイヤーを現在のステージの専用位置に配置し、移動速度をリセットする
+    ///     プレイヤーを開始地点または復活地点に配置し、移動速度をリセットする
     /// </summary>
-    private void RespawnPlayerImmediate(int playerIndex)
+    private void PlacePlayer(int playerIndex, bool isRespawn)
     {
         GameObject player = playerIndex == 1 ? _playerOneObject : _playerTwoObject;
         if (player == null)
@@ -373,7 +415,11 @@ public class GameManager : MonoBehaviour
         }
 
         StageDefinition stage = _stages[CurrentStageIndex];
-        Transform spawn = playerIndex == 1 ? stage.PlayerOneSpawn : stage.PlayerTwoSpawn;
+        Transform spawn = _stageInstance != null ? _stageInstance.GetSpawnPoint(playerIndex, isRespawn) : null;
+        if (spawn == null)
+        {
+            spawn = playerIndex == 1 ? stage.PlayerOneSpawn : stage.PlayerTwoSpawn;
+        }
         if (spawn == null)
         {
             spawn = playerIndex == 1 ? _playerOneSpawn : _playerTwoSpawn;
@@ -391,6 +437,19 @@ public class GameManager : MonoBehaviour
             body.position = player.transform.position;
             body.linearVelocity = Vector3.zero;
             body.angularVelocity = Vector3.zero;
+        }
+    }
+
+    /// <summary>
+    ///     現在のステージPrefabを無効化してから破棄する
+    /// </summary>
+    private void ClearStageInstance()
+    {
+        if (_stageInstance != null)
+        {
+            _stageInstance.gameObject.SetActive(false);
+            Destroy(_stageInstance.gameObject);
+            _stageInstance = null;
         }
     }
 
