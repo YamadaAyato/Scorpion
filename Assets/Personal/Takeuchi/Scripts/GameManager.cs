@@ -19,12 +19,6 @@ public struct StageDefinition
     public string StageName => _stageName;
     /// <summary> ステージ切り替え時に生成するPrefabを取得する </summary>
     public StageLayout Prefab => _prefab;
-    /// <summary> ステージ中に有効化するルートオブジェクトを取得する </summary>
-    public GameObject[] StageRoots => _stageRoots;
-    /// <summary> 1Pのステージ専用の復活地点を取得する </summary>
-    public Transform PlayerOneSpawn => _playerOneSpawn;
-    /// <summary> 2Pのステージ専用の復活地点を取得する </summary>
-    public Transform PlayerTwoSpawn => _playerTwoSpawn;
     /// <summary> ステージのギミック設定を取得する </summary>
     public StageGimmickSettings GimmickSettings => _gimmickSettings;
 
@@ -34,12 +28,6 @@ public struct StageDefinition
     private string _stageName;
     [SerializeField, Tooltip("開始地点と復活地点を設定したステージPrefab")]
     private StageLayout _prefab;
-    [SerializeField, Tooltip("Prefab未設定のステージで有効化する既存のシーン内オブジェクト群")]
-    private GameObject[] _stageRoots;
-    [SerializeField, Tooltip("1Pの復活地点。未指定の場合は試合共通の位置を使用する")]
-    private Transform _playerOneSpawn;
-    [SerializeField, Tooltip("2Pの復活地点。未指定の場合は試合共通の位置を使用する")]
-    private Transform _playerTwoSpawn;
     [SerializeField, Tooltip("通常・ラッシュの抽選とラッシュ突入時のギミック設定")]
     private StageGimmickSettings _gimmickSettings;
 }
@@ -71,12 +59,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField, Tooltip("1P本体")]
     private GameObject _playerOneObject;
-    [SerializeField, Tooltip("1Pの試合共通の復活地点")]
-    private Transform _playerOneSpawn;
     [SerializeField, Tooltip("2P本体")]
     private GameObject _playerTwoObject;
-    [SerializeField, Tooltip("2Pの試合共通の復活地点")]
-    private Transform _playerTwoSpawn;
     [SerializeField, Tooltip("試合で使用するステージを進行順に並べる")]
     private List<StageDefinition> _stages = new();
     [SerializeField, Tooltip("落下から復活までの待ち時間（秒）")]
@@ -265,7 +249,6 @@ public class GameManager : MonoBehaviour
         ClearStageInstance();
         CurrentStageIndex = stageIndex;
         StageDefinition stage = _stages[stageIndex];
-        SetLegacyStageRoots(stage);
         if (stage.Prefab != null)
         {
             _stageInstance = Instantiate(stage.Prefab);
@@ -273,31 +256,6 @@ public class GameManager : MonoBehaviour
 
         PlacePlayer(1, isRespawn: false);
         PlacePlayer(2, isRespawn: false);
-    }
-
-    /// <summary>
-    ///     シーン内に足場を置く既存のステージ設定を切り替える
-    /// </summary>
-    private void SetLegacyStageRoots(StageDefinition stage)
-    {
-        for (int i = 0; i < _stages.Count; i++)
-        {
-            GameObject[] roots = _stages[i].StageRoots;
-            if (roots == null)
-            {
-                continue;
-            }
-
-            foreach (GameObject root in roots)
-            {
-                if (root != null)
-                {
-                    root.SetActive(stage.Prefab == null && stage.StageRoots != null &&
-                        Array.IndexOf(stage.StageRoots, root) >= 0);
-                }
-            }
-        }
-
     }
 
     /// <summary>
@@ -417,16 +375,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        StageDefinition stage = _stages[CurrentStageIndex];
         Transform spawn = _stageInstance != null ? _stageInstance.GetSpawnPoint(playerIndex, isRespawn) : null;
-        if (spawn == null)
-        {
-            spawn = playerIndex == 1 ? stage.PlayerOneSpawn : stage.PlayerTwoSpawn;
-        }
-        if (spawn == null)
-        {
-            spawn = playerIndex == 1 ? _playerOneSpawn : _playerTwoSpawn;
-        }
 
         player.SetActive(false);
         if (spawn != null)
