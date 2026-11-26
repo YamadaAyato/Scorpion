@@ -434,6 +434,7 @@ namespace Scorpion.Effects
         {
             RecordPlayerPositions();
 
+            // ヒットストップ中も、撃破演出と時間の復帰を実時間で進める
             float deltaTime = Time.unscaledDeltaTime;
             Camera cam = GetCamera();
             foreach (Blast blast in _blasts)
@@ -602,6 +603,7 @@ namespace Scorpion.Effects
             Vector3 up = cam != null ? cam.transform.up : Vector3.up;
             bool anyVisible = false;
 
+            // ビームごとの遅延を引いた時間を使い、同じ撃破の中で発光のタイミングをずらす
             int layerCount = Mathf.Min(blast.Beams.Length, _beamLayers != null ? _beamLayers.Length : 0);
             for (int i = 0; i < layerCount; i++)
             {
@@ -677,6 +679,7 @@ namespace Scorpion.Effects
                 EmitShower(blast, viewAxis);
             }
 
+            // 線が消えた後に粒子の発射が予約されている場合も、発射するまでは更新を続ける
             if (!anyVisible && blast.ShowerEmitted)
             {
                 blast.ElapsedSeconds = -1f;

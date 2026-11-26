@@ -286,6 +286,7 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(1f);
         }
 
+        // カウントだけでなく START の表示中も入力を止め、表示が消えてから試合を進める
         OnStageCueChanged?.Invoke("START");
         yield return new WaitForSeconds(0.5f);
         _stageCueCoroutine = null;
@@ -364,6 +365,7 @@ public class GameManager : MonoBehaviour
 
         yield return new WaitForSeconds(Mathf.Max(0f, _respawnDelaySeconds));
 
+        // 復活待ちを解除し、待機中にラウンドが終わっていたらプレイヤーを出さない
         _respawnCoroutines[playerIndex - 1] = null;
         if (IsMatchActive && _timer.IsTimerRunning)
         {

@@ -66,6 +66,7 @@ namespace Scorpion.Audio
                 return;
             }
 
+            // 開くだけで音量変更イベントが発火しないよう、表示だけ同期する
             _masterSlider.SetValueWithoutNotify(audio.MasterVolume);
             _bgmSlider.SetValueWithoutNotify(audio.BgmVolume);
             _seSlider.SetValueWithoutNotify(audio.SeVolume);

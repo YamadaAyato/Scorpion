@@ -168,6 +168,7 @@ public class PlayerMove : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // 足場がギミックで消えると接触終了通知を受けられないことがあるため、無効な接触を取り除く
         _groundContacts.RemoveWhere(contact => contact == null || !contact.enabled || !contact.gameObject.activeInHierarchy);
         if (IsGrounded)
         {
@@ -186,6 +187,8 @@ public class PlayerMove : MonoBehaviour
             _chargeJumpTime = 0f;
             _groundContacts.Clear();
             _lastGroundedTime = float.NegativeInfinity;
+
+            // 踏み切った直後に残る接触で、空中状態が上書きされるのを防ぐ
             _ignoreGroundUntil = Time.fixedTime + 2f * Time.fixedDeltaTime;
             float multiplier = _jumpPowerMultipliers.Last?.Value ?? 1f;
             _rigidbody.AddForce(Vector3.up * (_jumpPower * multiplier), ForceMode.Impulse);
