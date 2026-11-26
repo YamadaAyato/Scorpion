@@ -276,17 +276,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   _playerOneObject: {fileID: 0}
-  _playerOneSpawn: {fileID: 0}
   _playerOneScoreText: {fileID: 0}
   _playerTwoObject: {fileID: 0}
-  _playerTwoSpawn: {fileID: 0}
   _playerTwoScoreText: {fileID: 0}
   _stageText: {fileID: 0}
   _stages:
   - _durationSeconds: 0
     rushThresholdSeconds: 0
     _stageName: 
-    _stageRoots: []
     normalSpawnInterval: 0
     rushSpawnInterval: 0
   _timerText: {fileID: 0}
