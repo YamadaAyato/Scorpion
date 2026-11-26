@@ -97,19 +97,6 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     試合に登録されているプレイヤーの対戦相手を取得する
-    /// </summary>
-    public GameObject GetOpponent(GameObject player)
-    {
-        if (player == _playerOneObject)
-        {
-            return _playerTwoObject;
-        }
-
-        return player == _playerTwoObject ? _playerOneObject : null;
-    }
-
-    /// <summary>
     ///     得点をリセットし、最初のステージから試合を始める
     /// </summary>
     public void StartMatch()
