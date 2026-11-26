@@ -35,7 +35,7 @@ public class PlayerMove : MonoBehaviour
     [SerializeField, Tooltip("長押しで上向きに加速できる最長時間（秒）。")]
     private float maxChargeTime = 0.3f;
 
-    [SerializeField, Tooltip("オンの場合は矢印キーで移動・ジャンプ・攻撃する。")]
+    [SerializeField, Tooltip("オンの場合は矢印キーまたはテンキーで移動・ジャンプ・攻撃する。")]
     private bool _useArrowKeys;
 
     private readonly HashSet<Collider> _groundContacts = new();
@@ -87,20 +87,27 @@ public class PlayerMove : MonoBehaviour
             return;
         }
 
-        Key jumpKey = _useArrowKeys ? Key.UpArrow : Key.W;
-        if (keyboard[jumpKey].wasPressedThisFrame && IsGrounded)
+        bool jumpPressed = _useArrowKeys
+            ? keyboard.upArrowKey.wasPressedThisFrame || keyboard.numpad8Key.wasPressedThisFrame
+            : keyboard.wKey.wasPressedThisFrame;
+        if (jumpPressed && IsGrounded)
         {
             _jumpRequested = true;
             _isJumpButtonPressed = true;
         }
 
-        if (keyboard[jumpKey].wasReleasedThisFrame)
+        bool jumpHeld = _useArrowKeys
+            ? keyboard.upArrowKey.isPressed || keyboard.numpad8Key.isPressed
+            : keyboard.wKey.isPressed;
+        if (!jumpHeld)
         {
             _isJumpButtonPressed = false;
         }
 
-        Key attackKey = _useArrowKeys ? Key.DownArrow : Key.S;
-        if (_playerAttack != null && keyboard[attackKey].wasPressedThisFrame)
+        bool attackPressed = _useArrowKeys
+            ? keyboard.downArrowKey.wasPressedThisFrame || keyboard.numpad5Key.wasPressedThisFrame
+            : keyboard.sKey.wasPressedThisFrame;
+        if (_playerAttack != null && attackPressed)
         {
             _playerAttack.Attack();
         }
@@ -169,9 +176,13 @@ public class PlayerMove : MonoBehaviour
             return;
         }
 
-        Key left = _useArrowKeys ? Key.LeftArrow : Key.A;
-        Key right = _useArrowKeys ? Key.RightArrow : Key.D;
-        float moveX = keyboard[left].isPressed ? -1f : keyboard[right].isPressed ? 1f : 0f;
+        bool leftHeld = _useArrowKeys
+            ? keyboard.leftArrowKey.isPressed || keyboard.numpad4Key.isPressed
+            : keyboard.aKey.isPressed;
+        bool rightHeld = _useArrowKeys
+            ? keyboard.rightArrowKey.isPressed || keyboard.numpad6Key.isPressed
+            : keyboard.dKey.isPressed;
+        float moveX = leftHeld ? -1f : rightHeld ? 1f : 0f;
         float currentSpeed = IsGrounded ? moveSpeed : airMoveSpeed;
         Vector3 velocity = _rigidbody.linearVelocity;
         velocity.x = moveX * currentSpeed;
