@@ -122,6 +122,27 @@ public class PlayerMove : MonoBehaviour
         return () => _jumpPowerMultipliers.Remove(effect);
     }
 
+    /// <summary>
+    ///     配置し直す前の接地・ジャンプ入力・被弾硬直を解除する
+    /// </summary>
+    internal void ResetMovementState()
+    {
+        _groundContacts.Clear();
+        _lastGroundedTime = float.NegativeInfinity;
+        _ignoreGroundUntil = 0f;
+        _sideContacts.Clear();
+        _jumpRequested = false;
+        _isJumpButtonPressed = false;
+        _chargeJumpTime = 0f;
+        if (_stunRoutine != null)
+        {
+            StopCoroutine(_stunRoutine);
+            _stunRoutine = null;
+        }
+
+        _isStunned = false;
+    }
+
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
@@ -204,18 +225,7 @@ public class PlayerMove : MonoBehaviour
 
     private void OnDisable()
     {
-        _groundContacts.Clear();
-        _lastGroundedTime = float.NegativeInfinity;
-        _ignoreGroundUntil = 0f;
-        _sideContacts.Clear();
-        _jumpRequested = false;
-        _isJumpButtonPressed = false;
-        if (_stunRoutine != null)
-        {
-            StopCoroutine(_stunRoutine);
-            _stunRoutine = null;
-            _isStunned = false;
-        }
+        ResetMovementState();
     }
 
     private void OnCollisionEnter(Collision collision)

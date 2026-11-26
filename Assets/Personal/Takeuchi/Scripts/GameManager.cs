@@ -400,9 +400,7 @@ public class GameManager : MonoBehaviour
         player.SetActive(true);
         if (player.TryGetComponent(out Rigidbody body))
         {
-            body.position = player.transform.position;
-            body.linearVelocity = Vector3.zero;
-            body.angularVelocity = Vector3.zero;
+            PlayerDeath.ResetBodyForSpawn(body, player.transform.position);
         }
 
         if (isRespawn && player.TryGetComponent(out PlayerDeath playerDeath))
