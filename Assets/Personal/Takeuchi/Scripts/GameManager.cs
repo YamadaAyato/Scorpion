@@ -57,6 +57,11 @@ public class GameManager : MonoBehaviour
     /// <summary> 加点時に使う現在のギミック倍率を取得する </summary>
     public int ScoreMultiplier => _gimmickManager != null ? _gimmickManager.ScoreMultiplier : 1;
 
+    /// <summary> UIが追従する1P本体を取得する </summary>
+    internal GameObject PlayerOneObject => _playerOneObject;
+    /// <summary> UIが追従する2P本体を取得する </summary>
+    internal GameObject PlayerTwoObject => _playerTwoObject;
+
     [SerializeField, Tooltip("1P本体")]
     private GameObject _playerOneObject;
     [SerializeField, Tooltip("2P本体")]

@@ -1,4 +1,5 @@
 using System;
+using Scorpion.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -41,6 +42,10 @@ public class UIManager : MonoBehaviour
     private ScoreManager _scoreManager;
     private GameManager _gameManager;
     private Color _normalTimerColor;
+    private PlayerIndicator _playerOneIndicator;
+    private PlayerIndicator _playerTwoIndicator;
+    private Camera _gameCamera;
+    private bool _showPlayerLabels;
 
     /// <summary>
     ///     残り時間表示を更新する（小数点以下は切り上げ表示）
@@ -89,6 +94,33 @@ public class UIManager : MonoBehaviour
         ///     Awake後に各マネージャーのInstanceが揃ってから購読を確実にする
         SubscribeEvents();
         InitializeUIState();
+        if (_gameManager != null && _stageCueText != null)
+        {
+            Canvas canvas = _stageCueText.canvas;
+            if (canvas != null)
+            {
+                _playerOneIndicator = new PlayerIndicator(canvas, _stageCueText.font, _gameManager.PlayerOneObject,
+                    "Player1", new Color(0.2f, 0.55f, 1f));
+                _playerTwoIndicator = new PlayerIndicator(canvas, _stageCueText.font, _gameManager.PlayerTwoObject,
+                    "Player2", new Color(1f, 0.18f, 0.18f));
+            }
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (_playerOneIndicator == null)
+        {
+            return;
+        }
+
+        if (_gameCamera == null)
+        {
+            _gameCamera = Camera.main;
+        }
+
+        _playerOneIndicator.Refresh(_gameCamera, _showPlayerLabels);
+        _playerTwoIndicator.Refresh(_gameCamera, _showPlayerLabels);
     }
 
     /// <summary>
@@ -96,6 +128,8 @@ public class UIManager : MonoBehaviour
     /// </summary>
     private void OnDisable()
     {
+        _playerOneIndicator?.Hide();
+        _playerTwoIndicator?.Hide();
         UnsubscribeEvents();
     }
 
@@ -180,6 +214,8 @@ public class UIManager : MonoBehaviour
     /// </summary>
     private void HandleStageCueChanged(string cue)
     {
+        _showPlayerLabels = _gameManager != null && _gameManager.IsMatchActive &&
+            _gameManager.CurrentStageIndex == 0 && !string.IsNullOrEmpty(cue) && cue != "FINISH";
         if (_stageCueText != null)
         {
             _stageCueText.text = cue;
