@@ -325,7 +325,10 @@ public class GameManager : MonoBehaviour
         float duration = stage.DurationSeconds;
         if (_gimmickManager != null)
         {
-            _gimmickManager.StartStage(stage.GimmickSettings, duration);
+            StageGimmickTargets targets = _stageInstance != null
+                ? _stageInstance.GetComponent<StageGimmickTargets>()
+                : null;
+            _gimmickManager.StartStage(stage.GimmickSettings, duration, targets);
         }
 
         SetPlayerInputEnabled(true);

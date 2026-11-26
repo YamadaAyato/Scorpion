@@ -37,6 +37,7 @@ namespace Scorpion.Gimmicks
 
         private readonly List<ActiveGimmick> _activeGimmicks = new();
         private StageGimmickSettings _settings;
+        private StageGimmickTargets _stageTargets;
         private float _remainingSeconds;
         private float _nextDrawAt;
         private bool _isRush;
@@ -48,17 +49,28 @@ namespace Scorpion.Gimmicks
         /// <summary>
         ///     ステージのプレイ開始時に、使用する設定と初期残り時間を登録する
         /// </summary>
-        public void StartStage(StageGimmickSettings settings, float remainingSeconds)
+        public void StartStage(StageGimmickSettings settings, float remainingSeconds, StageGimmickTargets stageTargets = null)
         {
             int version = _stageVersion + 1;
             EndStage();
-            if (version != _stageVersion || !isActiveAndEnabled || settings == null ||
+            if (version != _stageVersion || !isActiveAndEnabled ||
                 !float.IsFinite(remainingSeconds) || remainingSeconds <= 0f)
             {
                 return;
             }
 
             _settings = settings;
+            _stageTargets = stageTargets;
+            if (_stageTargets != null)
+            {
+                _stageTargets.SetRunning(true);
+            }
+
+            if (settings == null)
+            {
+                return;
+            }
+
             _remainingSeconds = remainingSeconds;
             _nextDrawAt = remainingSeconds - settings.NormalInterval;
             _isRush = false;
@@ -112,6 +124,12 @@ namespace Scorpion.Gimmicks
         {
             _stageVersion++;
             _settings = null;
+            if (_stageTargets != null)
+            {
+                _stageTargets.SetRunning(false);
+            }
+
+            _stageTargets = null;
             if (_activeGimmicks.Count == 0)
             {
                 return;
@@ -202,7 +220,7 @@ namespace Scorpion.Gimmicks
             }
 
             Vector3 spawnOrigin = _spawnOrigin != null ? _spawnOrigin.position : transform.position;
-            var context = new GimmickContext(spawnOrigin);
+            var context = new GimmickContext(spawnOrigin, _stageTargets);
             int version = _stageVersion;
             bool activated;
             try

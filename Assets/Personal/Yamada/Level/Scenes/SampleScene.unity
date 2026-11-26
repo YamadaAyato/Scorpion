@@ -2180,7 +2180,14 @@ MonoBehaviour:
   _playerTwoSpawn: {fileID: 0}
   _stages:
   - _durationSeconds: 30
-    _stageName: TEST PLATFORM
+    _stageName: TEST PLATFORM A
+    _prefab: {fileID: 6944651948277954067, guid: eda7c2464f0ddf843879c7c1550b0418, type: 3}
+    _stageRoots: []
+    _playerOneSpawn: {fileID: 0}
+    _playerTwoSpawn: {fileID: 0}
+    _gimmickSettings: {fileID: 11400000, guid: 93f76ad55d0aac241be01441e0021978, type: 2}
+  - _durationSeconds: 30
+    _stageName: TEST PLATFORM B
     _prefab: {fileID: 6944651948277954067, guid: eda7c2464f0ddf843879c7c1550b0418, type: 3}
     _stageRoots: []
     _playerOneSpawn: {fileID: 0}

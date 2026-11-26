@@ -1,57 +1,59 @@
-using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using System;
+using DG.Tweening;
 using UnityEngine;
 
+/// <summary>
+///     プレイヤーが乗った時間に応じて耐久値を減らし、足場を崩す
+/// </summary>
 public class Scaffold : MonoBehaviour
 {
-    [Header("耐久値")]
-    [SerializeField] private int _durability;
+    /// <summary> 足場の崩落を始めたときに通知する </summary>
+    public event Action HandlerDestroy;
 
-    private bool _canRide = true;
+    [SerializeField, Tooltip("足場に乗られたときに減る耐久値")]
+    private int _durability;
 
-    private Material[] _materials;
+    private bool _isCollapsing;
+    private bool _isPermanent;
 
-    private Action OnDestroy;
-
-    public event Action HandlerDestroy
+    /// <summary>
+    ///     復活用の足場として、乗っても崩れない状態にする
+    /// </summary>
+    public void KeepIntact()
     {
-        add => OnDestroy += value;
-        remove => OnDestroy -= value;
+        _isPermanent = true;
     }
 
-    private void Start() => _materials = GetComponent<Renderer>().materials;
+    /// <summary>
+    ///     足場を沈めて崩落させる
+    /// </summary>
+    public void ZeroDurability()
+    {
+        if (_isCollapsing || _isPermanent)
+        {
+            return;
+        }
 
-    public void ZeroDurability() => DestroyScaffold().Forget();
+        _isCollapsing = true;
+        HandlerDestroy?.Invoke();
+        transform.DOMoveY(transform.position.y - 1f, 2f)
+            .SetLink(gameObject)
+            .OnComplete(() => Destroy(gameObject));
+    }
 
     private void OnCollisionStay(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (_isCollapsing || _isPermanent || !collision.gameObject.CompareTag("Player"))
         {
-            if (_durability == 0 && _canRide)
-            {
-                DestroyScaffold().Forget();
-                return;
-            }
-
-            _durability--;
+            return;
         }
-    }
 
-    private async UniTask DestroyScaffold()
-    {
-        if (_canRide)
+        if (_durability <= 0)
         {
-            _canRide = false;
-            OnDestroy.Invoke();
-
-            Sequence sequence = DOTween.Sequence();
-
-            sequence.Join(transform.DOMoveY(transform.position.y - 1f, 2f));
-
-            await sequence.AsyncWaitForCompletion();
-
-            Destroy(gameObject);
+            ZeroDurability();
+            return;
         }
+
+        _durability--;
     }
 }
