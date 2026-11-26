@@ -267,6 +267,7 @@ public class GameManager : MonoBehaviour
 
         PlacePlayer(1, isRespawn: false);
         PlacePlayer(2, isRespawn: false);
+        SetPlayersStageIntroFrozen(true);
     }
 
     /// <summary>
@@ -306,6 +307,7 @@ public class GameManager : MonoBehaviour
             _gimmickManager.StartStage(stage.GimmickSettings, duration, targets);
         }
 
+        SetPlayersStageIntroFrozen(false);
         SetPlayerInputEnabled(true);
         _timer.StartStageTimer(duration);
     }
@@ -354,6 +356,22 @@ public class GameManager : MonoBehaviour
         if (_playerTwoObject != null && _playerTwoObject.TryGetComponent(out PlayerMove playerTwo))
         {
             playerTwo.SetInputEnabled(isEnabled);
+        }
+    }
+
+    /// <summary>
+    ///     落下しても復活できない開始演出中だけ、両プレイヤーを開始地点に留める
+    /// </summary>
+    private void SetPlayersStageIntroFrozen(bool frozen)
+    {
+        if (_playerOneObject != null && _playerOneObject.TryGetComponent(out PlayerMove playerOne))
+        {
+            playerOne.SetStageIntroFrozen(frozen);
+        }
+
+        if (_playerTwoObject != null && _playerTwoObject.TryGetComponent(out PlayerMove playerTwo))
+        {
+            playerTwo.SetStageIntroFrozen(frozen);
         }
     }
 
@@ -435,6 +453,7 @@ public class GameManager : MonoBehaviour
         }
 
         SetPlayerInputEnabled(false);
+        SetPlayersStageIntroFrozen(false);
         if (_timer != null)
         {
             _timer.StopTimer();
