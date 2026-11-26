@@ -58,6 +58,7 @@ public class PlayerMove : MonoBehaviour
     private Coroutine _stunRoutine;
     private float _lastGroundedTime = float.NegativeInfinity;
     private float _ignoreGroundUntil;
+    private RigidbodyConstraints? _constraintsBeforeIntro;
 
     private const float JUMP_GRACE_SECONDS = 0.08f;
 
@@ -120,6 +121,45 @@ public class PlayerMove : MonoBehaviour
     {
         LinkedListNode<float> effect = _jumpPowerMultipliers.AddLast(multiplier);
         return () => _jumpPowerMultipliers.Remove(effect);
+    }
+
+    /// <summary>
+    ///     配置し直す前の接地・ジャンプ入力・被弾硬直を解除する
+    /// </summary>
+    internal void ResetMovementState()
+    {
+        _groundContacts.Clear();
+        _lastGroundedTime = float.NegativeInfinity;
+        _ignoreGroundUntil = 0f;
+        _sideContacts.Clear();
+        _jumpRequested = false;
+        _isJumpButtonPressed = false;
+        _chargeJumpTime = 0f;
+        if (_stunRoutine != null)
+        {
+            StopCoroutine(_stunRoutine);
+            _stunRoutine = null;
+        }
+
+        _isStunned = false;
+    }
+
+    /// <summary>
+    ///     開始演出中は開始地点に留め、終了時に元の物理制約を復元する
+    /// </summary>
+    internal void SetStageIntroFrozen(bool frozen)
+    {
+        if (frozen && !_constraintsBeforeIntro.HasValue)
+        {
+            _constraintsBeforeIntro = _rigidbody.constraints;
+            _rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+        }
+        else if (!frozen && _constraintsBeforeIntro.HasValue)
+        {
+            _rigidbody.constraints = _constraintsBeforeIntro.Value;
+            _constraintsBeforeIntro = null;
+            PlayerDeath.ResetBodyForSpawn(_rigidbody, _rigidbody.position);
+        }
     }
 
     private void Awake()
@@ -204,18 +244,8 @@ public class PlayerMove : MonoBehaviour
 
     private void OnDisable()
     {
-        _groundContacts.Clear();
-        _lastGroundedTime = float.NegativeInfinity;
-        _ignoreGroundUntil = 0f;
-        _sideContacts.Clear();
-        _jumpRequested = false;
-        _isJumpButtonPressed = false;
-        if (_stunRoutine != null)
-        {
-            StopCoroutine(_stunRoutine);
-            _stunRoutine = null;
-            _isStunned = false;
-        }
+        SetStageIntroFrozen(false);
+        ResetMovementState();
     }
 
     private void OnCollisionEnter(Collision collision)

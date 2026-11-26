@@ -1,4 +1,6 @@
 using System;
+using DG.Tweening;
+using Scorpion.Gimmicks;
 using Scorpion.UI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -46,6 +48,13 @@ public class UIManager : MonoBehaviour
     private PlayerIndicator _playerTwoIndicator;
     private Camera _gameCamera;
     private bool _showPlayerLabels;
+    private GimmickManager _gimmickManager;
+    private GimmickNotice _gimmickNotice;
+    private Tween _timerPulse;
+    private Tween _rushBlink;
+    private Vector3 _timerBaseScale;
+    private Color _rushBaseColor;
+    private int _lastPulsedSecond = -1;
 
     /// <summary>
     ///     残り時間表示を更新する（小数点以下は切り上げ表示）
@@ -55,7 +64,13 @@ public class UIManager : MonoBehaviour
     {
         if (_timerText != null)
         {
-            _timerText.text = Mathf.CeilToInt(remainingSeconds).ToString();
+            int seconds = Mathf.CeilToInt(remainingSeconds);
+            _timerText.text = seconds.ToString();
+            if (seconds > 0 && seconds <= TimeManager.RUSH_REMAINING_SECONDS && seconds != _lastPulsedSecond &&
+                TimeManager.Instance != null && TimeManager.Instance.IsTimerRunning)
+            {
+                PlayTimerPulse(seconds);
+            }
         }
     }
 
@@ -75,6 +90,12 @@ public class UIManager : MonoBehaviour
         if (_timerText != null)
         {
             _normalTimerColor = _timerText.color;
+            _timerBaseScale = _timerText.rectTransform.localScale;
+        }
+
+        if (_rushNoticeText != null)
+        {
+            _rushBaseColor = _rushNoticeText.color;
         }
     }
 
@@ -93,6 +114,7 @@ public class UIManager : MonoBehaviour
     {
         ///     Awake後に各マネージャーのInstanceが揃ってから購読を確実にする
         SubscribeEvents();
+        ApplyHudFont();
         InitializeUIState();
         if (_gameManager != null && _stageCueText != null)
         {
@@ -100,15 +122,45 @@ public class UIManager : MonoBehaviour
             if (canvas != null)
             {
                 _playerOneIndicator = new PlayerIndicator(canvas, _stageCueText.font, _gameManager.PlayerOneObject,
-                    "Player1", new Color(0.2f, 0.55f, 1f));
+                    "Player1", new Color(1f, 0.42f, 0.68f));
                 _playerTwoIndicator = new PlayerIndicator(canvas, _stageCueText.font, _gameManager.PlayerTwoObject,
-                    "Player2", new Color(1f, 0.18f, 0.18f));
+                    "Player2", new Color(0.36f, 0.74f, 1f));
+                _gimmickNotice = new GimmickNotice(canvas, _stageCueText.font);
+            }
+        }
+    }
+
+    /// <summary>
+    ///     試合中のHUDとリザルトに共通フォントを適用する
+    /// </summary>
+    private void ApplyHudFont()
+    {
+        Font font = Resources.Load<Font>("Fonts/MochiyPopOne-Regular");
+        Text[] hudTexts =
+        {
+            _playerOneScoreText, _playerTwoScoreText, _stageText, _timerText,
+            _rushNoticeText, _stageCueText, _resultText
+        };
+        foreach (Text text in hudTexts)
+        {
+            if (text != null)
+            {
+                if (font != null)
+                {
+                    text.font = font;
+                    text.fontStyle = FontStyle.Normal;
+                }
+
+                text.fontSize = Mathf.RoundToInt(text.fontSize * 1.2f);
+                // フォントの行高が元の表示枠を超えても、行全体が描画から除かれないようにする
+                text.verticalOverflow = VerticalWrapMode.Overflow;
             }
         }
     }
 
     private void LateUpdate()
     {
+        _gimmickNotice?.HideWhenExpired();
         if (_playerOneIndicator == null)
         {
             return;
@@ -128,6 +180,8 @@ public class UIManager : MonoBehaviour
     /// </summary>
     private void OnDisable()
     {
+        ResetRushEffects();
+        _gimmickNotice?.Clear();
         _playerOneIndicator?.Hide();
         _playerTwoIndicator?.Hide();
         UnsubscribeEvents();
@@ -165,11 +219,13 @@ public class UIManager : MonoBehaviour
     /// <param name="stage">開始したステージの設定データ</param>
     private void HandleStageStarted(int stageIndex, StageDefinition stage)
     {
+        ResetRushEffects();
+        _gimmickNotice?.Clear();
         if (_stageText != null)
         {
             _stageText.text = string.IsNullOrEmpty(stage.StageName)
-                ? $"STAGE {stageIndex + 1}"
-                : $"STAGE {stageIndex + 1}  {stage.StageName}";
+                ? $"ステージ {stageIndex + 1}"
+                : $"ステージ {stageIndex + 1}　{stage.StageName}";
         }
 
         if (_resultPanel != null)
@@ -205,7 +261,13 @@ public class UIManager : MonoBehaviour
         if (_rushNoticeText != null)
         {
             _rushNoticeText.gameObject.SetActive(true);
-            _rushNoticeText.text = "GIMMICK RUSH!!";
+            _rushNoticeText.text = "ギミックラッシュ!!";
+            _rushBlink?.Kill();
+            _rushNoticeText.color = _rushBaseColor;
+            _rushBlink = DOTween.ToAlpha(() => _rushNoticeText.color, color => _rushNoticeText.color = color, 0.12f, 0.32f)
+                .SetEase(Ease.InOutSine)
+                .SetLoops(-1, LoopType.Yoyo)
+                .SetUpdate(true);
         }
     }
 
@@ -214,8 +276,20 @@ public class UIManager : MonoBehaviour
     /// </summary>
     private void HandleStageCueChanged(string cue)
     {
-        _showPlayerLabels = _gameManager != null && _gameManager.IsMatchActive &&
-            _gameManager.CurrentStageIndex == 0 && !string.IsNullOrEmpty(cue) && cue != "FINISH";
+        if (cue == "FINISH")
+        {
+            ResetRushEffects();
+            _gimmickNotice?.Clear();
+        }
+
+        bool isIntro = _gameManager != null && _gameManager.IsMatchActive &&
+            !string.IsNullOrEmpty(cue) && cue != "FINISH";
+        _showPlayerLabels = isIntro && _gameManager.CurrentStageIndex == 0;
+        if (_stageText != null)
+        {
+            _stageText.gameObject.SetActive(isIntro);
+        }
+
         if (_stageCueText != null)
         {
             _stageCueText.text = cue;
@@ -229,11 +303,20 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
+    ///     成功したギミックの発動名をHUDに表示する
+    /// </summary>
+    private void HandleGimmickStarted(int activationId, GimmickDefinition definition)
+    {
+        _gimmickNotice?.Show(definition.DisplayName);
+    }
+
+    /// <summary>
     ///     試合終了イベントを受け取り、勝敗結果を表示してリザルトパネルを開く
     /// </summary>
     /// <param name="winnerPlayerIndex">勝者番号（1: 1P勝利, 2: 2P勝利, 0: 引き分け）</param>
     private void HandleMatchFinished(int winnerPlayerIndex)
     {
+        ResetRushEffects();
         if (_rushNoticeText != null)
         {
             _rushNoticeText.gameObject.SetActive(false);
@@ -286,6 +369,47 @@ public class UIManager : MonoBehaviour
             _gameManager.OnGimmickRushStarted += HandleGimmickRushStarted;
             _gameManager.OnMatchFinished += HandleMatchFinished;
             _gameManager.OnStageCueChanged += HandleStageCueChanged;
+            _gimmickManager = _gameManager.Gimmicks;
+            if (_gimmickManager != null)
+            {
+                _gimmickManager.OnGimmickStarted += HandleGimmickStarted;
+            }
+        }
+    }
+
+    /// <summary>
+    ///     秒が切り替わったときだけタイマーを拡大し、元の大きさへ戻す
+    /// </summary>
+    private void PlayTimerPulse(int seconds)
+    {
+        _lastPulsedSecond = seconds;
+        _timerPulse?.Kill();
+        RectTransform rect = _timerText.rectTransform;
+        rect.localScale = _timerBaseScale;
+        _timerPulse = DOTween.Sequence()
+            .Append(rect.DOScale(_timerBaseScale * 1.18f, 0.1f).SetEase(Ease.OutQuad))
+            .Append(rect.DOScale(_timerBaseScale, 0.22f).SetEase(Ease.OutQuad))
+            .SetUpdate(true);
+    }
+
+    /// <summary>
+    ///     ステージ切り替え時にラッシュ中の拡大と点滅を解除する
+    /// </summary>
+    private void ResetRushEffects()
+    {
+        _timerPulse?.Kill();
+        _timerPulse = null;
+        _rushBlink?.Kill();
+        _rushBlink = null;
+        _lastPulsedSecond = -1;
+        if (_timerText != null)
+        {
+            _timerText.rectTransform.localScale = _timerBaseScale;
+        }
+
+        if (_rushNoticeText != null)
+        {
+            _rushNoticeText.color = _rushBaseColor;
         }
     }
 
@@ -294,6 +418,12 @@ public class UIManager : MonoBehaviour
     /// </summary>
     private void UnsubscribeEvents()
     {
+        if (_gimmickManager != null)
+        {
+            _gimmickManager.OnGimmickStarted -= HandleGimmickStarted;
+            _gimmickManager = null;
+        }
+
         if (_scoreManager != null)
         {
             _scoreManager.OnScoreChanged -= HandleScoreChanged;

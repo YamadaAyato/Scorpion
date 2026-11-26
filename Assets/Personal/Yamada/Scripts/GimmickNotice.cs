@@ -1,0 +1,92 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace Scorpion.UI
+{
+    /// <summary>
+    ///     発動したギミック名を試合HUDに一時表示する
+    /// </summary>
+    internal sealed class GimmickNotice
+    {
+        /// <summary>
+        ///     ラッシュ表示の下にギミック発動通知を作る
+        /// </summary>
+        internal GimmickNotice(Canvas canvas, Font font)
+        {
+            var item = new GameObject("Gimmick Notice", typeof(RectTransform));
+            item.transform.SetParent(canvas.transform, false);
+            _text = item.AddComponent<Text>();
+            _text.font = font;
+            _text.fontSize = 32;
+            _text.color = new Color(0.52f, 0.94f, 0.78f);
+            _text.alignment = TextAnchor.UpperCenter;
+            _text.verticalOverflow = VerticalWrapMode.Overflow;
+            _text.supportRichText = false;
+            _text.raycastTarget = false;
+
+            RectTransform rect = _text.rectTransform;
+            rect.anchorMin = new Vector2(0.1f, 1f);
+            rect.anchorMax = new Vector2(0.9f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);
+            rect.sizeDelta = new Vector2(0f, 40f);
+            // ラッシュ告知（-150付近）と重ならないよう、その下に出す
+            rect.anchoredPosition = new Vector2(0f, -196f);
+            PopOutline outline = item.AddComponent<PopOutline>();
+            outline.effectColor = new Color(0.27f, 0.16f, 0.4f, 1f);
+            outline.effectDistance = new Vector2(2.5f, -2.5f);
+            Shadow shadow = item.AddComponent<Shadow>();
+            shadow.effectColor = new Color(0.27f, 0.16f, 0.4f, 0.45f);
+            shadow.effectDistance = new Vector2(0f, -3f);
+            Clear();
+        }
+
+        private readonly Text _text;
+        private readonly List<string> _names = new();
+        private float _hideAt;
+
+        private const float DISPLAY_SECONDS = 1.8f;
+
+        /// <summary>
+        ///     表示中に別のギミックが発動したら、前の名前と一緒に表示する
+        /// </summary>
+        internal void Show(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return;
+            }
+
+            HideWhenExpired();
+            if (!_names.Contains(name))
+            {
+                _names.Add(name);
+                _text.text = string.Join("  /  ", _names);
+            }
+
+            _text.gameObject.SetActive(true);
+            _hideAt = Time.unscaledTime + DISPLAY_SECONDS;
+        }
+
+        /// <summary>
+        ///     指定時間が過ぎたら通知を片付ける
+        /// </summary>
+        internal void HideWhenExpired()
+        {
+            if (_text.gameObject.activeSelf && Time.unscaledTime >= _hideAt)
+            {
+                Clear();
+            }
+        }
+
+        /// <summary>
+        ///     現在の発動通知を消す
+        /// </summary>
+        internal void Clear()
+        {
+            _names.Clear();
+            _text.text = string.Empty;
+            _text.gameObject.SetActive(false);
+        }
+    }
+}

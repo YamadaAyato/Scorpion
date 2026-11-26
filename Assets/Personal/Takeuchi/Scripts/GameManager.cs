@@ -61,6 +61,8 @@ public class GameManager : MonoBehaviour
     internal GameObject PlayerOneObject => _playerOneObject;
     /// <summary> UIが追従する2P本体を取得する </summary>
     internal GameObject PlayerTwoObject => _playerTwoObject;
+    /// <summary> HUDが発動通知を購読するギミック管理を取得する </summary>
+    internal GimmickManager Gimmicks => _gimmickManager;
 
     [SerializeField, Tooltip("1P本体")]
     private GameObject _playerOneObject;
@@ -267,6 +269,7 @@ public class GameManager : MonoBehaviour
 
         PlacePlayer(1, isRespawn: false);
         PlacePlayer(2, isRespawn: false);
+        SetPlayersStageIntroFrozen(true);
     }
 
     /// <summary>
@@ -306,6 +309,7 @@ public class GameManager : MonoBehaviour
             _gimmickManager.StartStage(stage.GimmickSettings, duration, targets);
         }
 
+        SetPlayersStageIntroFrozen(false);
         SetPlayerInputEnabled(true);
         _timer.StartStageTimer(duration);
     }
@@ -358,6 +362,22 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
+    ///     落下しても復活できない開始演出中だけ、両プレイヤーを開始地点に留める
+    /// </summary>
+    private void SetPlayersStageIntroFrozen(bool frozen)
+    {
+        if (_playerOneObject != null && _playerOneObject.TryGetComponent(out PlayerMove playerOne))
+        {
+            playerOne.SetStageIntroFrozen(frozen);
+        }
+
+        if (_playerTwoObject != null && _playerTwoObject.TryGetComponent(out PlayerMove playerTwo))
+        {
+            playerTwo.SetStageIntroFrozen(frozen);
+        }
+    }
+
+    /// <summary>
     ///     復活待ち時間のあと、現在のステージの地点へ戻す
     /// </summary>
     private IEnumerator RespawnAfterDelay(int playerIndex)
@@ -400,9 +420,7 @@ public class GameManager : MonoBehaviour
         player.SetActive(true);
         if (player.TryGetComponent(out Rigidbody body))
         {
-            body.position = player.transform.position;
-            body.linearVelocity = Vector3.zero;
-            body.angularVelocity = Vector3.zero;
+            PlayerDeath.ResetBodyForSpawn(body, player.transform.position);
         }
 
         if (isRespawn && player.TryGetComponent(out PlayerDeath playerDeath))
@@ -437,6 +455,7 @@ public class GameManager : MonoBehaviour
         }
 
         SetPlayerInputEnabled(false);
+        SetPlayersStageIntroFrozen(false);
         if (_timer != null)
         {
             _timer.StopTimer();

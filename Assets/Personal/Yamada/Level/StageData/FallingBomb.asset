@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35ea5a879af06324bbafab1024c88363, type: 3}
   m_Name: FallingBomb
   m_EditorClassIdentifier: Assembly-CSharp::Scorpion.Gimmicks.GimmickDefinition
-  _displayName: "\u7206\u767A\u3059\u308B\u843D\u4E0B\u7269"
-  _description: "\u5730\u9762\u304B\u30D7\u30EC\u30A4\u30E4\u30FC\u306B\u89E6\u308C\u308B\u3068\u7206\u767A\u3059\u308B"
+  _displayName: "爆発隕石襲来"
+  _description: "上空や斜めから爆発隕石が飛来し、地面かプレイヤーに触れると爆発する"
   _duration: 5
   _action:
     rid: 4673120731219886377
@@ -26,5 +26,7 @@ MonoBehaviour:
         _prefab: {fileID: 5544179512472492435, guid: 78fca49e2a584c44f924965c82f8339c, type: 3}
         _spawnOffset: {x: 0, y: 0}
         _initialVelocity: {x: 0, y: -2}
+        _diagonalSpawnOffset: 4
+        _diagonalSpeed: 5
         _maxSpawnCount: 1
         _maxSpeed: 18
