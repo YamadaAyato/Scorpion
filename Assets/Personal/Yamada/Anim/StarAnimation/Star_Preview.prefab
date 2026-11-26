@@ -331,12 +331,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a780b14dc51844cbb29a1b485d3592, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
-  _moveSpeed: 5
-  _airMoveSpeed: 2
+  _moveSpeed: 7
+  _airMoveSpeed: 3.5
   _groundAcceleration: 75
-  _airAcceleration: 18
-  _jumpPower: 5
-  _chargeJumpPower: 8
+  _airAcceleration: 33
+  _jumpPower: 8
+  _chargeJumpPower: 12
   _maxChargeTimeSeconds: 0.3
   _useArrowKeys: 0
   _isStunned: 0
