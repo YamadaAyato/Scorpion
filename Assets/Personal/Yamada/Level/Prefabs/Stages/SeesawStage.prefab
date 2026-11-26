@@ -197,6 +197,9 @@ MonoBehaviour:
   - {fileID: 5677683975684698050}
   - {fileID: 6491306328985269303}
   _movingPlatform: {fileID: 6592168899784948596}
+  _seesaw: {fileID: 4632495175213856554}
+  _seesawRestoringForce: 30
+  _seesawMaxTilt: 22
   _windObject: {fileID: 5474018692611011637}
   _gear: {fileID: 0}
   _gearDegreesPerSecond: 72
@@ -249,6 +252,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 861492642650922511, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 896512255632232180, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -285,6 +292,11 @@ PrefabInstance:
 --- !u!4 &1042098444378376514 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7976510926270804412, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+  m_PrefabInstance: {fileID: 6972704095720028414}
+  m_PrefabAsset: {fileID: 0}
+--- !u!54 &4632495175213856554 stripped
+Rigidbody:
+  m_CorrespondingSourceObject: {fileID: 2345786891239460820, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
   m_PrefabInstance: {fileID: 6972704095720028414}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &5474018692611011637 stripped
