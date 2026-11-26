@@ -1,84 +1,80 @@
 using System;
 using UnityEngine;
 
+/// <summary>
+///     落下したプレイヤーの相手に加点し、全ステージの合計を保持する。
+/// </summary>
 public class ScoreManager : MonoBehaviour
 {
-   public static ScoreManager Instance { get; private set; }
+    /// <summary> 得点が変わったプレイヤー番号と更新後の得点を通知する。 </summary>
+    public event Action<int, int> OnScoreChanged;
 
-    [Tooltip("落下スコア")][SerializeField] private int _pointPerFall = 1; /// 落下1回あたりの加点（基本1pt）
+    /// <summary> 現在の得点管理を取得する。 </summary>
+    public static ScoreManager Instance { get; private set; }
+    /// <summary> 1Pの合計得点を取得する。 </summary>
+    public int PlayerOneScore { get; private set; }
+    /// <summary> 2Pの合計得点を取得する。 </summary>
+    public int PlayerTwoScore { get; private set; }
 
-    private int _playerOneScore; /// ステージを跨いでも引き継ぐ合計スコア
-    private int _playerTwoScore; /// ステージを跨いでも引き継ぐ合計スコア
-    public event Action<int, int> OnScoreChanged; /// 1P/2Pのスコア変化時
-    public int PlayerOneScore
-    {
-        get => _playerOneScore;
-        private set
-        {
-            _playerOneScore = Mathf.Max(0, value);
-            
-            OnScoreChanged?.Invoke(1, _playerOneScore); /// 1Pスコア更新を通知
-        }
-    }
-
-    public int PlayerTwoScore
-    {
-        get => _playerTwoScore;
-        private set
-        {
-            _playerTwoScore = Mathf.Max(0, value);
-            
-            OnScoreChanged?.Invoke(2, _playerTwoScore); /// 2Pスコア更新を通知
-        }
-    }
+    [SerializeField, Min(1), Tooltip("落下1回の基本点。")]
+    private int _pointPerFall = 1;
 
     /// <summary>
-    /// どちらかが落下したときに呼ぶ（落下した側ではなく相手側に+1pt＆復活予約）
+    ///     落下で復活予約が成立した場合、相手に現在の倍率で加点する。
     /// </summary>
-    /// <param name="fallenPlayerIndex"></param>
     public void NotifyPlayerFell(int fallenPlayerIndex)
     {
-        if (GameManager.Instance == null || !GameManager.Instance.IsMatchActive)
+        GameManager game = GameManager.Instance;
+        if (game == null)
         {
             return;
         }
 
-        /// すでに復活待ち中のプレイヤーは再落下判定しない
-        if (GameManager.Instance.IsPlayerRespawning(fallenPlayerIndex))
+        int points = Mathf.Max(1, _pointPerFall) * game.ScoreMultiplier;
+        if (!game.TryStartRespawn(fallenPlayerIndex))
         {
             return;
         }
 
         if (fallenPlayerIndex == 1)
         {
-            PlayerTwoScore += _pointPerFall; /// 1P落下 → 2Pに加点
-            GameManager.Instance.StartRespawn(playerIndex: 1);
+            PlayerTwoScore += points;
+            OnScoreChanged?.Invoke(2, PlayerTwoScore);
         }
-        else if (fallenPlayerIndex == 2)
+        else
         {
-            PlayerOneScore += _pointPerFall; /// 2P落下 → 1Pに加点
-            GameManager.Instance.StartRespawn(playerIndex: 2);
+            PlayerOneScore += points;
+            OnScoreChanged?.Invoke(1, PlayerOneScore);
         }
     }
 
     /// <summary>
-    /// 試合開始時のスコアリセット
+    ///     新しい試合のために両者の得点を初期化する。
     /// </summary>
     public void ResetScore()
     {
         PlayerOneScore = 0;
         PlayerTwoScore = 0;
+        OnScoreChanged?.Invoke(1, PlayerOneScore);
+        OnScoreChanged?.Invoke(2, PlayerTwoScore);
     }
 
     private void Awake()
     {
-        /// 重複インスタンスがあれば破棄して1つだけ残す
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
+            Destroy(this);
             return;
         }
 
         Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 }

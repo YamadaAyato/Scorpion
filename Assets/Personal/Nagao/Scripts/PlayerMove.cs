@@ -16,7 +16,7 @@ public class PlayerMove : MonoBehaviour
     /// <summary> 足元が地面に接しているかを取得する。 </summary>
     public bool IsGrounded => _groundContacts.Count > 0;
     /// <summary> 接地中に横方向へ移動しているかを取得する。 </summary>
-    public bool IsMoving => IsGrounded && !isStunned && Mathf.Abs(_rigidbody.linearVelocity.x) > 0.05f;
+    public bool IsMoving => IsGrounded && _isInputEnabled && !isStunned && Mathf.Abs(_rigidbody.linearVelocity.x) > 0.05f;
 
     // 既存の公開フィールドは外部からの設定とシーンのシリアライズを維持する。
     public bool isStunned;
@@ -41,10 +41,24 @@ public class PlayerMove : MonoBehaviour
     private readonly HashSet<Collider> _groundContacts = new();
     private PlayerAttack _playerAttack;
     private Rigidbody _rigidbody;
+    private bool _isInputEnabled = true;
     private bool _jumpRequested;
     private bool _isJumpButtonPressed;
     private float _chargeJumpTime;
     private Coroutine _stunRoutine;
+
+    /// <summary>
+    ///     試合進行に合わせて入力の受け付けを切り替える。
+    /// </summary>
+    public void SetInputEnabled(bool isEnabled)
+    {
+        _isInputEnabled = isEnabled;
+        if (!isEnabled)
+        {
+            _jumpRequested = false;
+            _isJumpButtonPressed = false;
+        }
+    }
 
     /// <summary>
     ///     指定時間、移動と入力を止める。
@@ -68,7 +82,7 @@ public class PlayerMove : MonoBehaviour
     private void Update()
     {
         Keyboard keyboard = Keyboard.current;
-        if (keyboard == null || isStunned)
+        if (!_isInputEnabled || keyboard == null || isStunned)
         {
             return;
         }
@@ -94,7 +108,7 @@ public class PlayerMove : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (isStunned)
+        if (!_isInputEnabled || isStunned)
         {
             return;
         }

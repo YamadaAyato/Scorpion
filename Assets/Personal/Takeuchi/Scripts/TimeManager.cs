@@ -1,62 +1,72 @@
 using System;
 using UnityEngine;
 
+/// <summary>
+///     ステージの残り時間とラッシュへの移行を管理する。
+/// </summary>
+[DefaultExecutionOrder(100)]
 public class TimeManager : MonoBehaviour
 {
+    /// <summary> 残り秒数が設定・更新されたときに通知する。 </summary>
+    public event Action<float> OnTimeChanged;
+    /// <summary> 制限時間が0になったときに通知する。 </summary>
+    public event Action OnStageTimeExpired;
+    /// <summary> 残り10秒に入ったときに通知する。 </summary>
+    public event Action OnGimmickRushStarted;
+
+    /// <summary> 現在のタイマーを取得する。 </summary>
     public static TimeManager Instance { get; private set; }
+    /// <summary> カウントダウン中かどうかを取得する。 </summary>
+    public bool IsTimerRunning { get; private set; }
+    /// <summary> ラッシュ中かどうかを取得する。 </summary>
+    public bool IsGimmickRushActive { get; private set; }
+    /// <summary> ステージの残り秒数を取得する。 </summary>
+    public float RemainingSeconds { get; private set; }
 
-    public event Action OnStageTimeExpired; /// 現ステージの制限時間が0になった時
-    public event Action OnGimmickRushStarted; /// 残り10秒ラッシュ突入時
-    public event Action OnGimmickSpawnTick; /// ギミックスポーン間隔に達した時
+    /// <summary> 仕様で定められたラッシュ開始時の残り秒数。 </summary>
+    public const float RUSH_REMAINING_SECONDS = 10f;
 
-    public bool IsTimerRunning { get; private set; } /// カウントダウン中かどうか
-    public bool IsGimmickRushActive { get; private set; } /// ギミックラッシュ中かどうか
-    public float RemainingSeconds => _stageRemainingSeconds; /// 残り時間（秒）
-
-    private float _stageRemainingSeconds; /// 現ステージの残り秒数
-    private float _rushThresholdSeconds = 10f; /// ラッシュ突入の残り秒数
-    private float _normalSpawnInterval = 1.5f; /// 通常時のギミック発生間隔
-    private float _rushSpawnInterval = 0.4f; /// ラッシュ時のギミック発生間隔
-    private float _gimmickSpawnTimer; /// ギミック生成間隔カウント用
+    internal const float DEFAULT_STAGE_DURATION_SECONDS = 30f;
 
     /// <summary>
-    /// ステージ開始時に制限時間とラッシュ・スポーン設定を初期化する
+    ///     指定秒数でステージのカウントダウンを始める。
     /// </summary>
-    public void StartStageTimer(float durationSeconds, float rushThresholdSeconds, float normalSpawnInterval, float rushSpawnInterval)
+    public void StartStageTimer(float durationSeconds)
     {
-        _stageRemainingSeconds = Mathf.Max(1f, durationSeconds);
-        _rushThresholdSeconds = rushThresholdSeconds > 0f ? rushThresholdSeconds : 10f;
-        _normalSpawnInterval = Mathf.Max(0.2f, normalSpawnInterval);
-        _rushSpawnInterval = Mathf.Max(0.1f, rushSpawnInterval);
-        _gimmickSpawnTimer = 0f;
-
+        RemainingSeconds = float.IsFinite(durationSeconds) && durationSeconds > 0f
+            ? durationSeconds
+            : DEFAULT_STAGE_DURATION_SECONDS;
         IsGimmickRushActive = false;
         IsTimerRunning = true;
-
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.UpdateTimerText(_stageRemainingSeconds);
-        }
+        PublishTime();
     }
 
     /// <summary>
-    /// タイマーを一時停止または完全停止する
+    ///     カウントダウンとラッシュ状態を終了する。
     /// </summary>
     public void StopTimer()
     {
         IsTimerRunning = false;
+        IsGimmickRushActive = false;
     }
 
     private void Awake()
     {
-        /// 重複インスタンスがあれば破棄して1つだけ残す
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
+            Destroy(this);
             return;
         }
 
         Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     private void Update()
@@ -66,53 +76,38 @@ public class TimeManager : MonoBehaviour
             return;
         }
 
-        if (GameManager.Instance != null && !GameManager.Instance.IsMatchActive)
+        RemainingSeconds = Mathf.Max(0f, RemainingSeconds - Time.deltaTime);
+        if (RemainingSeconds <= 0f)
         {
-            IsTimerRunning = false;
+            StopTimer();
+            PublishTime();
+            OnStageTimeExpired?.Invoke();
             return;
         }
 
-        _stageRemainingSeconds = Mathf.Max(0f, _stageRemainingSeconds - Time.deltaTime);
+        PublishTime();
+    }
+
+    /// <summary>
+    ///     残り時間を反映し、一度だけラッシュ開始を通知する。
+    /// </summary>
+    private void PublishTime()
+    {
+        bool startsRush = IsTimerRunning && !IsGimmickRushActive && RemainingSeconds <= RUSH_REMAINING_SECONDS;
+        if (startsRush)
+        {
+            IsGimmickRushActive = true;
+        }
 
         if (UIManager.Instance != null)
         {
-            UIManager.Instance.UpdateTimerText(_stageRemainingSeconds);
+            UIManager.Instance.UpdateTimerText(RemainingSeconds);
         }
 
-        EvaluateGimmickRush();
-        UpdateGimmickSpawner();
-
-        if (_stageRemainingSeconds <= 0f)
+        OnTimeChanged?.Invoke(RemainingSeconds);
+        if (startsRush && IsGimmickRushActive)
         {
-            IsTimerRunning = false;
-            OnStageTimeExpired?.Invoke();
-        }
-    }
-
-    /// <summary>
-    /// 残り時間がしきい値（10秒）以下になったらギミックラッシュ開始
-    /// </summary>
-    private void EvaluateGimmickRush()
-    {
-        if (!IsGimmickRushActive && _stageRemainingSeconds <= _rushThresholdSeconds)
-        {
-            IsGimmickRushActive = true;
             OnGimmickRushStarted?.Invoke();
-        }
-    }
-
-    /// <summary>
-    /// 通常時／ラッシュ時の間隔に合わせてギミック生成タイミングを進める
-    /// </summary>
-    private void UpdateGimmickSpawner()
-    {
-        float interval = IsGimmickRushActive ? _rushSpawnInterval : _normalSpawnInterval;
-        _gimmickSpawnTimer += Time.deltaTime;
-
-        if (_gimmickSpawnTimer >= interval)
-        {
-            _gimmickSpawnTimer = 0f;
-            OnGimmickSpawnTick?.Invoke();
         }
     }
 }

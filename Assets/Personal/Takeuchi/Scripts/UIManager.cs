@@ -5,6 +5,7 @@ using UnityEngine.UI;
 /// <summary>
 /// 試合中のスコア・ステージ・残り時間・ラッシュ告知・リザルト画面のUI表示を管理するクラス。
 /// </summary>
+[DefaultExecutionOrder(-100)]
 public class UIManager : MonoBehaviour
 {
     /// <summary>
@@ -20,12 +21,19 @@ public class UIManager : MonoBehaviour
     [Tooltip("ステージ表示")][SerializeField] private Text _stageText; /// 現在のステージ表示
     [Tooltip("残り時間")][SerializeField] private Text _timerText; /// 残り時間表示
     [Tooltip("ラッシュ告知")][SerializeField] private Text _rushNoticeText; /// ギミックラッシュ告知表示
+    [SerializeField, Tooltip("カウントダウン、START、FINISH を表示する。")]
+    private Text _stageCueText;
 
     [Header("リザルトUI参照")]
     [Tooltip("勝敗結果表示")][SerializeField] private Text _resultText; /// 勝敗結果表示
     [Tooltip("リザルトパネル")][SerializeField] private GameObject _resultPanel; /// 終了時に表示するパネル
 
-    private bool _isSubscribed; /// イベント二重購読防止フラグ
+    [SerializeField, Tooltip("ラッシュ中に使うタイマーの色。")]
+    private Color _rushTimerColor = new Color(1f, 0.35f, 0.25f);
+
+    private ScoreManager _scoreManager;
+    private GameManager _gameManager;
+    private Color _normalTimerColor;
 
     /// <summary>
     /// 残り時間表示を更新する（小数点以下は切り上げ表示）。
@@ -52,6 +60,10 @@ public class UIManager : MonoBehaviour
         }
 
         Instance = this;
+        if (_timerText != null)
+        {
+            _normalTimerColor = _timerText.color;
+        }
     }
 
     /// <summary>
@@ -78,6 +90,14 @@ public class UIManager : MonoBehaviour
     private void OnDisable()
     {
         UnsubscribeEvents();
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     /// <summary>
@@ -108,8 +128,20 @@ public class UIManager : MonoBehaviour
         {
             _stageText.text = string.IsNullOrEmpty(stage.stageName)
                 ? $"STAGE {stageIndex + 1}"
-                : stage.stageName;
+                : $"STAGE {stageIndex + 1}  {stage.stageName}";
         }
+
+        if (_resultPanel != null)
+        {
+            _resultPanel.SetActive(false);
+        }
+
+        if (_timerText != null)
+        {
+            _timerText.color = _normalTimerColor;
+        }
+
+        UpdateTimerText(stage.DurationSeconds);
 
         if (_rushNoticeText != null)
         {
@@ -124,10 +156,32 @@ public class UIManager : MonoBehaviour
     /// <param name="stage">現在のステージ設定データ</param>
     private void HandleGimmickRushStarted(int stageIndex, StageDefinition stage)
     {
+        if (_timerText != null)
+        {
+            _timerText.color = _rushTimerColor;
+        }
+
         if (_rushNoticeText != null)
         {
             _rushNoticeText.gameObject.SetActive(true);
             _rushNoticeText.text = "GIMMICK RUSH!!";
+        }
+    }
+
+    /// <summary>
+    ///     カウントダウンとステージ終了の表示を切り替える。
+    /// </summary>
+    private void HandleStageCueChanged(string cue)
+    {
+        if (_stageCueText != null)
+        {
+            _stageCueText.text = cue;
+            _stageCueText.gameObject.SetActive(!string.IsNullOrEmpty(cue));
+        }
+
+        if (cue == "FINISH" && _rushNoticeText != null)
+        {
+            _rushNoticeText.gameObject.SetActive(false);
         }
     }
 
@@ -137,6 +191,11 @@ public class UIManager : MonoBehaviour
     /// <param name="winnerPlayerIndex">勝者番号（1: 1P勝利, 2: 2P勝利, 0: 引き分け）</param>
     private void HandleMatchFinished(int winnerPlayerIndex)
     {
+        if (_rushNoticeText != null)
+        {
+            _rushNoticeText.gameObject.SetActive(false);
+        }
+
         if (_resultPanel != null)
         {
             _resultPanel.SetActive(true);
@@ -159,6 +218,11 @@ public class UIManager : MonoBehaviour
         {
             _resultText.text = "DRAW";
         }
+
+        if (_scoreManager != null)
+        {
+            _resultText.text += $"\n1P  {_scoreManager.PlayerOneScore}  -  {_scoreManager.PlayerTwoScore}  2P";
+        }
     }
 
     /// <summary>
@@ -166,26 +230,19 @@ public class UIManager : MonoBehaviour
     /// </summary>
     private void SubscribeEvents()
     {
-        if (_isSubscribed)
+        if (_scoreManager == null && ScoreManager.Instance != null)
         {
-            return;
+            _scoreManager = ScoreManager.Instance;
+            _scoreManager.OnScoreChanged += HandleScoreChanged;
         }
 
-        if (ScoreManager.Instance != null)
+        if (_gameManager == null && GameManager.Instance != null)
         {
-            ScoreManager.Instance.OnScoreChanged += HandleScoreChanged;
-        }
-
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnStageStarted += HandleStageStarted;
-            GameManager.Instance.OnGimmickRushStarted += HandleGimmickRushStarted;
-            GameManager.Instance.OnMatchFinished += HandleMatchFinished;
-        }
-
-        if (ScoreManager.Instance != null && GameManager.Instance != null)
-        {
-            _isSubscribed = true;
+            _gameManager = GameManager.Instance;
+            _gameManager.OnStageStarted += HandleStageStarted;
+            _gameManager.OnGimmickRushStarted += HandleGimmickRushStarted;
+            _gameManager.OnMatchFinished += HandleMatchFinished;
+            _gameManager.OnStageCueChanged += HandleStageCueChanged;
         }
     }
 
@@ -194,24 +251,20 @@ public class UIManager : MonoBehaviour
     /// </summary>
     private void UnsubscribeEvents()
     {
-        if (!_isSubscribed)
+        if (_scoreManager != null)
         {
-            return;
+            _scoreManager.OnScoreChanged -= HandleScoreChanged;
+            _scoreManager = null;
         }
 
-        if (ScoreManager.Instance != null)
+        if (_gameManager != null)
         {
-            ScoreManager.Instance.OnScoreChanged -= HandleScoreChanged;
+            _gameManager.OnStageStarted -= HandleStageStarted;
+            _gameManager.OnGimmickRushStarted -= HandleGimmickRushStarted;
+            _gameManager.OnMatchFinished -= HandleMatchFinished;
+            _gameManager.OnStageCueChanged -= HandleStageCueChanged;
+            _gameManager = null;
         }
-
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnStageStarted -= HandleStageStarted;
-            GameManager.Instance.OnGimmickRushStarted -= HandleGimmickRushStarted;
-            GameManager.Instance.OnMatchFinished -= HandleMatchFinished;
-        }
-
-        _isSubscribed = false;
     }
 
     /// <summary>
@@ -222,6 +275,7 @@ public class UIManager : MonoBehaviour
         HandleScoreChanged(1, ScoreManager.Instance != null ? ScoreManager.Instance.PlayerOneScore : 0);
         HandleScoreChanged(2, ScoreManager.Instance != null ? ScoreManager.Instance.PlayerTwoScore : 0);
         UpdateTimerText(TimeManager.Instance != null ? TimeManager.Instance.RemainingSeconds : 0f);
+        HandleStageCueChanged(string.Empty);
 
         if (_rushNoticeText != null)
         {
