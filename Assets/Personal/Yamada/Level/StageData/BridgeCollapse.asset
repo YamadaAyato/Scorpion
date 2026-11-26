@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35ea5a879af06324bbafab1024c88363, type: 3}
+  m_Name: BridgeCollapse
+  m_EditorClassIdentifier: Assembly-CSharp::Scorpion.Gimmicks.GimmickDefinition
+  _displayName: "\u6A4B\u306E\u9023\u7D9A\u5D29\u843D"
+  _description: "\u4E2D\u592E\u306E\u8DB3\u5834\u304C\u9806\u756A\u306B\u5D29\u308C\u308B"
+  _duration: 4
+  _action:
+    rid: 4673120731219886361
+  references:
+    version: 2
+    RefIds:
+    - rid: 4673120731219886361
+      type: {class: BridgeCollapseAction, ns: Scorpion.Gimmicks, asm: Assembly-CSharp}
+      data:
+        _boardCount: 2
+        _intervalSeconds: 0.55

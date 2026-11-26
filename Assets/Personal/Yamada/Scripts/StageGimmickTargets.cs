@@ -19,6 +19,12 @@ namespace Scorpion.Gimmicks
         private Transform[] _fallPoints = System.Array.Empty<Transform>();
         [SerializeField, Tooltip("横移動させるシーソーのルート")]
         private Transform _movingPlatform;
+        [SerializeField, Tooltip("プレイヤーの重さで傾くシーソーの足場")]
+        private Rigidbody _seesaw;
+        [SerializeField, Min(0f), Tooltip("シーソーを水平に戻す強さ")]
+        private float _seesawRestoringForce = 30f;
+        [SerializeField, Range(0f, 45f), Tooltip("シーソーの傾きの上限（度）")]
+        private float _seesawMaxTilt = 22f;
         [SerializeField, Tooltip("ギミック中に有効にする風のオブジェクト")]
         private GameObject _windObject;
         [SerializeField, Tooltip("回転させるキネマティックな歯車")]
@@ -92,6 +98,7 @@ namespace Scorpion.Gimmicks
 
         private void FixedUpdate()
         {
+            StabilizeSeesaw();
             if (!_isRunning || _gear == null)
             {
                 return;
@@ -110,6 +117,33 @@ namespace Scorpion.Gimmicks
             }
 
             _gear.MoveRotation(Quaternion.AngleAxis(angle, Vector3.forward) * _gear.rotation);
+        }
+
+        /// <summary>
+        ///     重さで傾く足場に復元力を加え、回転し続けないようにする
+        /// </summary>
+        private void StabilizeSeesaw()
+        {
+            if (_seesaw == null)
+            {
+                return;
+            }
+
+            float tilt = Mathf.DeltaAngle(0f, _seesaw.rotation.eulerAngles.z);
+            float limitedTilt = Mathf.Clamp(tilt, -_seesawMaxTilt, _seesawMaxTilt);
+            if (!Mathf.Approximately(tilt, limitedTilt))
+            {
+                _seesaw.rotation = Quaternion.AngleAxis(limitedTilt, Vector3.forward);
+                Vector3 angularVelocity = _seesaw.angularVelocity;
+                if (Mathf.Sign(angularVelocity.z) == Mathf.Sign(tilt))
+                {
+                    angularVelocity.z = 0f;
+                    _seesaw.angularVelocity = angularVelocity;
+                }
+            }
+
+            _seesaw.AddTorque(Vector3.back * (limitedTilt * Mathf.Deg2Rad * _seesawRestoringForce),
+                ForceMode.Acceleration);
         }
     }
 }
