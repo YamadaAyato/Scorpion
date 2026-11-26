@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 351815185261833549}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.6, y: 1.8, z: 0}
+  m_LocalPosition: {x: 3, y: 4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -87,7 +87,7 @@ Transform:
   m_GameObject: {fileID: 3196724324932550901}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.6, y: 1.8, z: 0}
+  m_LocalPosition: {x: -3, y: 4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -199,6 +199,7 @@ MonoBehaviour:
   _movingPlatform: {fileID: 6592168899784948596}
   _seesaw: {fileID: 4632495175213856554}
   _seesawRestoringForce: 30
+  _seesawDegreesPerMoment: 5
   _seesawMaxTilt: 22
   _windObject: {fileID: 5474018692611011637}
   _gear: {fileID: 0}
