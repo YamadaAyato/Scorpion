@@ -18,6 +18,8 @@ namespace Scorpion.Gimmicks
         private Vector2 _initialVelocity = new(0f, -8f);
         [SerializeField, Min(1), Tooltip("指定地点が複数ある場合に同時に落とす最大数")]
         private int _maxSpawnCount = 1;
+        [SerializeField, Min(1f), Tooltip("落下物の最大速度（メートル毎秒）")]
+        private float _maxSpeed = 18f;
 
         /// <inheritdoc/>
         public bool TryActivate(GimmickContext context)
@@ -76,6 +78,8 @@ namespace Scorpion.Gimmicks
 
             // 3D物理の接触を使いながら、飛来物をプレイヤーの移動平面に留める。
             obstacle.constraints |= RigidbodyConstraints.FreezePositionZ;
+            obstacle.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            obstacle.maxLinearVelocity = Mathf.Min(obstacle.maxLinearVelocity, _maxSpeed);
             obstacle.linearVelocity = _initialVelocity;
         }
     }

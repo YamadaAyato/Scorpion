@@ -23,6 +23,8 @@ namespace Scorpion.Gimmicks
         private Rigidbody _seesaw;
         [SerializeField, Min(0f), Tooltip("シーソーを水平に戻す強さ")]
         private float _seesawRestoringForce = 30f;
+        [SerializeField, Min(0f), Tooltip("重さと支点からの距離に対する傾きの大きさ")]
+        private float _seesawDegreesPerMoment = 5f;
         [SerializeField, Range(0f, 45f), Tooltip("シーソーの傾きの上限（度）")]
         private float _seesawMaxTilt = 22f;
         [SerializeField, Tooltip("ギミック中に有効にする風のオブジェクト")]
@@ -38,6 +40,17 @@ namespace Scorpion.Gimmicks
         private int _reverseCount;
         private int _windCount;
         private bool _isRunning;
+        private PlayerMove _playerOne;
+        private PlayerMove _playerTwo;
+
+        /// <summary>
+        ///     シーソーに重さを加える試合中のプレイヤーを登録する
+        /// </summary>
+        public void SetPlayers(PlayerMove playerOne, PlayerMove playerTwo)
+        {
+            _playerOne = playerOne;
+            _playerTwo = playerTwo;
+        }
 
         /// <summary>
         ///     ステージのプレイ中だけ基本の歯車回転を進める
@@ -96,6 +109,14 @@ namespace Scorpion.Gimmicks
             return true;
         }
 
+        private void Awake()
+        {
+            if (_seesaw != null)
+            {
+                _seesaw.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+            }
+        }
+
         private void FixedUpdate()
         {
             StabilizeSeesaw();
@@ -142,8 +163,19 @@ namespace Scorpion.Gimmicks
                 }
             }
 
-            _seesaw.AddTorque(Vector3.back * (limitedTilt * Mathf.Deg2Rad * _seesawRestoringForce),
-                ForceMode.Acceleration);
+            float moment = GetPlayerMoment(_playerOne) + GetPlayerMoment(_playerTwo);
+            float targetTilt = Mathf.Clamp(-moment * _seesawDegreesPerMoment, -_seesawMaxTilt, _seesawMaxTilt);
+            float angularAcceleration = (targetTilt - limitedTilt) * Mathf.Deg2Rad * _seesawRestoringForce;
+            angularAcceleration -= _seesaw.angularVelocity.z * 6f;
+            _seesaw.AddTorque(Vector3.forward * angularAcceleration, ForceMode.Acceleration);
+        }
+
+        /// <summary>
+        ///     シーソーに接地しているプレイヤーが加える荷重を取得する
+        /// </summary>
+        private float GetPlayerMoment(PlayerMove player)
+        {
+            return player != null && player.isActiveAndEnabled ? player.GetSupportMoment(_seesaw) : 0f;
         }
     }
 }
