@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 89226da1bfb246d8936026a45370543a
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _puffMaterial: {fileID: 2100000, guid: 0c4ca33800614a949e64f824b230203e, type: 2}
+  - _sparkleMaterial: {fileID: 2100000, guid: 0648142a5bee48d8bca373a9d5cf460b, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
