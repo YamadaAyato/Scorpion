@@ -283,10 +283,10 @@ MonoBehaviour:
   _playerTwoScoreText: {fileID: 0}
   _stageText: {fileID: 0}
   _stages:
-  - durationSeconds: 0
+  - _durationSeconds: 0
     rushThresholdSeconds: 0
-    stageName: 
-    stageRoots: []
+    _stageName: 
+    _stageRoots: []
     normalSpawnInterval: 0
     rushSpawnInterval: 0
   _timerText: {fileID: 0}

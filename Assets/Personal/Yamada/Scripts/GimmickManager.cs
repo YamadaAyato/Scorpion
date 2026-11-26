@@ -5,19 +5,19 @@ using UnityEngine;
 namespace Scorpion.Gimmicks
 {
     /// <summary>
-    ///     ステージの残り時間からギミックを抽選し、発動中の効果を管理する。
+    ///     ステージの残り時間からギミックを抽選し、発動中の効果を管理する
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class GimmickManager : MonoBehaviour
     {
-        /// <summary> ギミック発動時に発動IDと設定を通知する。 </summary>
+        /// <summary> ギミック発動時に発動IDと設定を通知する </summary>
         public event Action<int, GimmickDefinition> OnGimmickStarted;
-        /// <summary> ギミック終了時に発動IDと設定を通知する。 </summary>
+        /// <summary> ギミック終了時に発動IDと設定を通知する </summary>
         public event Action<int, GimmickDefinition> OnGimmickEnded;
-        /// <summary> 残り10秒以下に入り、ラッシュが始まったことを通知する。 </summary>
+        /// <summary> 残り10秒以下に入り、ラッシュが始まったことを通知する </summary>
         public event Action OnRushStarted;
 
-        /// <summary> 有効な効果のうち最大の得点倍率を取得する。通常は1。 </summary>
+        /// <summary> 有効な効果のうち最大の得点倍率を取得する。通常は1 </summary>
         public int ScoreMultiplier
         {
             get
@@ -32,7 +32,7 @@ namespace Scorpion.Gimmicks
             }
         }
 
-        [SerializeField, Tooltip("妨害物の出現基準。未指定の場合はこのコンポーネントの位置を使用します。")]
+        [SerializeField, Tooltip("妨害物の出現基準。未指定の場合はこのコンポーネントの位置を使用します")]
         private Transform _spawnOrigin;
 
         private readonly List<ActiveGimmick> _activeGimmicks = new();
@@ -46,7 +46,7 @@ namespace Scorpion.Gimmicks
         private const float RUSH_REMAINING_SECONDS = 10f;
 
         /// <summary>
-        ///     ステージのプレイ開始時に、使用する設定と初期残り時間を登録する。
+        ///     ステージのプレイ開始時に、使用する設定と初期残り時間を登録する
         /// </summary>
         public void StartStage(StageGimmickSettings settings, float remainingSeconds)
         {
@@ -66,7 +66,7 @@ namespace Scorpion.Gimmicks
         }
 
         /// <summary>
-        ///     ステージタイマーの残り時間を受け取り、効果の終了と次の発動を処理する。
+        ///     ステージタイマーの残り時間を受け取り、効果の終了と次の発動を処理する
         /// </summary>
         public void UpdateStageTime(float remainingSeconds)
         {
@@ -106,7 +106,7 @@ namespace Scorpion.Gimmicks
         }
 
         /// <summary>
-        ///     ステージを終了し、効果をすべて解除してから終了イベントを通知する。
+        ///     ステージを終了し、効果をすべて解除してから終了イベントを通知する
         /// </summary>
         public void EndStage()
         {
@@ -136,7 +136,7 @@ namespace Scorpion.Gimmicks
         }
 
         /// <summary>
-        ///     ラッシュに切り替え、突入時のギミックを一度だけ発動する。
+        ///     ラッシュに切り替え、突入時のギミックを一度だけ発動する
         /// </summary>
         private void StartRush(int version)
         {
@@ -157,7 +157,7 @@ namespace Scorpion.Gimmicks
         }
 
         /// <summary>
-        ///     正の重みを持つ有効な候補からギミックを1つ抽選する。
+        ///     正の重みを持つ有効な候補からギミックを1つ抽選する
         /// </summary>
         private static GimmickDefinition Draw(IReadOnlyList<GimmickSpawnEntry> entries)
         {
@@ -192,7 +192,7 @@ namespace Scorpion.Gimmicks
         }
 
         /// <summary>
-        ///     発動用の状態を作成して、効果を適用できた場合だけ通知する。
+        ///     発動用の状態を作成して、効果を適用できた場合だけ通知する
         /// </summary>
         private void Activate(GimmickDefinition definition)
         {
@@ -229,7 +229,7 @@ namespace Scorpion.Gimmicks
         }
 
         /// <summary>
-        ///     指定された効果時間を過ぎたギミックを解除する。
+        ///     指定された効果時間を過ぎたギミックを解除する
         /// </summary>
         private void EndExpiredGimmicks(int version)
         {
@@ -252,7 +252,7 @@ namespace Scorpion.Gimmicks
         }
 
         /// <summary>
-        ///     同じ設定から複数回発動しても、発動ごとの終了時刻と状態を保持する。
+        ///     同じ設定から複数回発動しても、発動ごとの終了時刻と状態を保持する
         /// </summary>
         private sealed class ActiveGimmick
         {

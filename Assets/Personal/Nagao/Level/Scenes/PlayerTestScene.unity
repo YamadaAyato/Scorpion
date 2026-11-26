@@ -554,10 +554,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a780b14dc51844cbb29a1b485d3592, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
-  moveSpeed: 5
-  jumpPower: 5
-  chargeJumpPower: 8
-  maxChargeTime: 0.5
+  _moveSpeed: 5
+  _jumpPower: 5
+  _chargeJumpPower: 8
+  _maxChargeTimeSeconds: 0.5
 --- !u!1 &709706414
 GameObject:
   m_ObjectHideFlags: 0

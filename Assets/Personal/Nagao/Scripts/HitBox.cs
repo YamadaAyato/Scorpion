@@ -1,34 +1,32 @@
 using UnityEngine;
 
+/// <summary>
+///     æ”»æ’ƒã«è§¦ã‚ŒãŸç›¸æ‰‹ã‚’å¹ãé£›ã°ã—ã€ä¸€å®šæ™‚é–“æ“ä½œä¸èƒ½ã«ã™ã‚‹
+/// </summary>
 public class Hitbox : MonoBehaviour
 {
-    [SerializeField] float damagePower = 10f; // ‚«”ò‚Î‚µ‚Ì‹­‚³
-    [SerializeField] float stunDuration = 0.5f; // ‘Šè‚Ì‘€ì•s”\ŠÔi•bj
+    [SerializeField, Tooltip("ç›¸æ‰‹ã‚’å¹ãé£›ã°ã™åŠ›")]
+    private float _knockbackForce = 10f;
+    [SerializeField, Tooltip("ç›¸æ‰‹ãŒæ“ä½œã§ããªããªã‚‹æ™‚é–“ï¼ˆç§’ï¼‰")]
+    private float _stunDurationSeconds = 0.5f;
 
-    void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
-        // ©•ª©giƒvƒŒƒCƒ„[j‚É“–‚½‚Á‚½ê‡‚Í–³‹‚·‚é
-        if (other.gameObject == transform.root.gameObject) return;
-
-        // ‘Šè‚ªRigidbody‚ğ‚Á‚Ä‚¢‚é‚©Šm”F
-        Rigidbody targetRb = other.GetComponent<Rigidbody>();
-        if (targetRb != null)
+        Transform attacker = transform.root;
+        if (other.gameObject == attacker.gameObject || !other.TryGetComponent(out Rigidbody targetBody))
         {
-            // ‘Šè‚ÌPlayerMove‚ğæ“¾‚µ‚Ä‘€ì•s”\‚É‚·‚é
-            PlayerMove targetMove = other.GetComponent<PlayerMove>();
-            if (targetMove != null)
-            {
-                targetMove.ApplyStun(stunDuration);
-            }
-
-            // ‘Šè‚©‚ç©•ª‚Ö‚Ì•ûŒü‚ğŒvZ‚µ‚Ä‚«”ò‚Î‚·
-            Vector3 direction = (other.transform.position - transform.root.position).normalized;
-            
-            // ­‚µÎ‚ßã‚É‚«”ò‚Î‚·‚ÆƒXƒ}ƒuƒ‰‚Á‚Û‚­‚È‚è‚Ü‚·
-            Vector3 forceDirection = (direction + Vector3.up * 0.5f).normalized;
-
-            targetRb.AddForce(forceDirection * damagePower, ForceMode.Impulse);
-            Debug.Log("UŒ‚‚Ğ‚Á‚Æ");
+            return;
         }
+
+        if (other.TryGetComponent(out PlayerMove targetMovement))
+        {
+            targetMovement.ApplyStun(_stunDurationSeconds);
+        }
+
+        // åœ°ä¸Šã§ã‚‚æŠ¼ã—åˆã„ã‹ã‚‰é›¢ã‚Œã‚‹ã‚ˆã†ã€å¹ãé£›ã¶æ–¹å‘ã«ä¸Šå‘ãã®æˆåˆ†ã‚’åŠ ãˆã‚‹
+        Vector3 direction = (other.transform.position - attacker.position).normalized;
+        Vector3 knockbackDirection = (direction + Vector3.up * 0.5f).normalized;
+        targetBody.AddForce(knockbackDirection * _knockbackForce, ForceMode.Impulse);
+        Debug.Log("æ”»æ’ƒã²ã£ã¨");
     }
 }

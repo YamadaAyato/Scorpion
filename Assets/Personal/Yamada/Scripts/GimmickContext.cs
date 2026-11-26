@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Scorpion.Gimmicks
 {
     /// <summary>
-    ///     ギミックの発動1回分の実行状態と解除処理を保持する。
+    ///     ギミックの発動1回分の実行状態と解除処理を保持する
     /// </summary>
     public sealed class GimmickContext
     {
@@ -13,7 +13,7 @@ namespace Scorpion.Gimmicks
             SpawnOrigin = spawnOrigin;
         }
 
-        /// <summary> ステージ上の妨害物の出現基準位置を取得する。 </summary>
+        /// <summary> ステージ上の妨害物の出現基準位置を取得する </summary>
         public Vector3 SpawnOrigin { get; }
 
         internal int ScoreMultiplier { get; private set; } = 1;
@@ -21,7 +21,7 @@ namespace Scorpion.Gimmicks
         private Action _cleanup;
 
         /// <summary>
-        ///     今回の発動が加点処理に適用する倍率を設定する。
+        ///     今回の発動が加点処理に適用する倍率を設定する
         /// </summary>
         public void SetScoreMultiplier(int multiplier)
         {
@@ -29,7 +29,7 @@ namespace Scorpion.Gimmicks
         }
 
         /// <summary>
-        ///     効果終了時に実行する解除処理を追加する。
+        ///     効果終了時に実行する解除処理を追加する
         /// </summary>
         public void RegisterCleanup(Action cleanup)
         {
@@ -37,7 +37,7 @@ namespace Scorpion.Gimmicks
         }
 
         /// <summary>
-        ///     今回の発動に紐づく効果を解除する。
+        ///     今回の発動に紐づく効果を解除する
         /// </summary>
         internal void Clear()
         {
