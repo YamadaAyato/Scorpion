@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b098f94981b7423f8b1da72c0b54bfa5
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _ribbonMaterial: {fileID: 2100000, guid: dbf9d8aba6d344859977e4e480308207, type: 2}
+  - _puffMaterial: {fileID: 2100000, guid: 0c4ca33800614a949e64f824b230203e, type: 2}
+  - _sparkleMaterial: {fileID: 2100000, guid: 0648142a5bee48d8bca373a9d5cf460b, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
