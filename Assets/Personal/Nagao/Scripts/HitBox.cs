@@ -47,6 +47,11 @@ public class Hitbox : MonoBehaviour
             return;
         }
 
+        if (isPlayer && targetBody.TryGetComponent(out PlayerDeath playerDeath) && playerDeath.IsRespawnProtected)
+        {
+            return;
+        }
+
         if (!_hitBodies.Add(targetBody))
         {
             return;

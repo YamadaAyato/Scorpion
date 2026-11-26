@@ -396,6 +396,11 @@ public class GameManager : MonoBehaviour
             body.linearVelocity = Vector3.zero;
             body.angularVelocity = Vector3.zero;
         }
+
+        if (isRespawn && player.TryGetComponent(out PlayerDeath playerDeath))
+        {
+            playerDeath.StartRespawnProtection();
+        }
     }
 
     /// <summary>

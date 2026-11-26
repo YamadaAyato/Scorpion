@@ -23,13 +23,15 @@ public class PlayerAttack : MonoBehaviour
 
     private readonly LinkedList<float> _knockbackMultipliers = new();
     private Coroutine _attackRoutine;
+    private PlayerDeath _playerDeath;
 
     /// <summary>
     ///     攻撃可能な場合に当たり判定を有効化する
     /// </summary>
     public void Attack()
     {
-        if (!isActiveAndEnabled || _attackHitbox == null || _attackRoutine != null)
+        if (!isActiveAndEnabled || _attackHitbox == null || _attackRoutine != null ||
+            (_playerDeath != null && _playerDeath.IsRespawnProtected))
         {
             return;
         }
@@ -58,6 +60,7 @@ public class PlayerAttack : MonoBehaviour
 
     private void Awake()
     {
+        TryGetComponent(out _playerDeath);
         if (_attackHitbox != null)
         {
             _attackHitbox.SetActive(false);

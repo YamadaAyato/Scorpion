@@ -678,6 +678,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8641042541237240698, guid: 2e8b256d569779843820dca30bd4a039, type: 3}
       insertIndex: -1
       addedObject: {fileID: 360887992}
+    - targetCorrespondingSourceObject: {fileID: 8641042541237240698, guid: 2e8b256d569779843820dca30bd4a039, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 360887993}
   m_SourcePrefab: {fileID: 100100000, guid: 2e8b256d569779843820dca30bd4a039, type: 3}
 --- !u!1 &360887984 stripped
 GameObject:
@@ -1923,6 +1926,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8641042541237240698, guid: 2e8b256d569779843820dca30bd4a039, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1412709504}
+    - targetCorrespondingSourceObject: {fileID: 8641042541237240698, guid: 2e8b256d569779843820dca30bd4a039, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1412709505}
   m_SourcePrefab: {fileID: 100100000, guid: 2e8b256d569779843820dca30bd4a039, type: 3}
 --- !u!4 &1412709500 stripped
 Transform:
@@ -2530,5 +2536,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89226da1bfb246d8936026a45370543a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scorpion.Effects.JumpDustEffect
+  _puffMaterial: {fileID: 2100000, guid: 0c4ca33800614a949e64f824b230203e, type: 2}
+  _sparkleMaterial: {fileID: 2100000, guid: 0648142a5bee48d8bca373a9d5cf460b, type: 2}
+--- !u!114 &360887993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 360887984}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b098f94981b7423f8b1da72c0b54bfa5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Scorpion.Effects.SpinAttackEffect
+  _ribbonMaterial: {fileID: 2100000, guid: dbf9d8aba6d344859977e4e480308207, type: 2}
+  _puffMaterial: {fileID: 2100000, guid: 0c4ca33800614a949e64f824b230203e, type: 2}
+  _sparkleMaterial: {fileID: 2100000, guid: 0648142a5bee48d8bca373a9d5cf460b, type: 2}
+--- !u!114 &1412709505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 145838365}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b098f94981b7423f8b1da72c0b54bfa5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Scorpion.Effects.SpinAttackEffect
+  _ribbonMaterial: {fileID: 2100000, guid: dbf9d8aba6d344859977e4e480308207, type: 2}
   _puffMaterial: {fileID: 2100000, guid: 0c4ca33800614a949e64f824b230203e, type: 2}
   _sparkleMaterial: {fileID: 2100000, guid: 0648142a5bee48d8bca373a9d5cf460b, type: 2}

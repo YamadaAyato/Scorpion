@@ -38,6 +38,11 @@ namespace Scorpion.Gimmicks
             _body = GetComponent<Rigidbody>();
         }
 
+        private void OnEnable()
+        {
+            PlayerDeath.RegisterObstacle(_body);
+        }
+
         private void FixedUpdate()
         {
             if (_canTransferImpact)

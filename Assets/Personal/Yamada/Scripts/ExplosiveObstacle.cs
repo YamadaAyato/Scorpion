@@ -31,6 +31,11 @@ namespace Scorpion.Gimmicks
             _body = GetComponent<Rigidbody>();
         }
 
+        private void OnEnable()
+        {
+            PlayerDeath.RegisterObstacle(_body);
+        }
+
         private void OnCollisionEnter(Collision collision)
         {
             if (_hasExploded || (!collision.collider.CompareTag("Ground") &&
@@ -68,7 +73,9 @@ namespace Scorpion.Gimmicks
             foreach (Collider candidate in Physics.OverlapSphere(center, _radius, ~0, QueryTriggerInteraction.Ignore))
             {
                 Rigidbody target = candidate.attachedRigidbody;
-                if (target == null || !target.TryGetComponent(out PlayerMove player) || !affected.Add(target))
+                if (target == null || !target.TryGetComponent(out PlayerMove player) ||
+                    (target.TryGetComponent(out PlayerDeath playerDeath) && playerDeath.IsRespawnProtected) ||
+                    !affected.Add(target))
                 {
                     continue;
                 }
