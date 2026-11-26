@@ -1,21 +1,24 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
+/// <summary>
+///     高さのしきい値を下回ったプレイヤーに落下を通知する
+/// </summary>
 public class FallZone : MonoBehaviour
 {
-    [Header("�v���C���[�ݒ�")]
-    [SerializeField] PlayerDeath[] players;
+    [FormerlySerializedAs("players")]
+    [SerializeField, Tooltip("落下を監視するプレイヤー")]
+    private PlayerDeath[] _players;
 
-    [Header("�����ݒ�")]
-    [SerializeField] float fallHeight = -10f;
+    [FormerlySerializedAs("fallHeight")]
+    [SerializeField, Tooltip("この高さを下回ると落下として扱う")]
+    private float _fallHeight = -10f;
 
-    void Update()
+    private void Update()
     {
-        foreach (PlayerDeath player in players)
+        foreach (PlayerDeath player in _players)
         {
-            if (player == null) continue;
-
-            // �v���C���[�������������m�F
-            if (player.transform.position.y < fallHeight)
+            if (player != null && player.transform.position.y < _fallHeight)
             {
                 player.Death();
             }

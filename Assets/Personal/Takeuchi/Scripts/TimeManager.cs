@@ -2,34 +2,34 @@ using System;
 using UnityEngine;
 
 /// <summary>
-///     ステージの残り時間とラッシュへの移行を管理する。
+///     ステージの残り時間とラッシュへの移行を管理する
 /// </summary>
 [DefaultExecutionOrder(100)]
 public class TimeManager : MonoBehaviour
 {
-    /// <summary> 残り秒数が設定・更新されたときに通知する。 </summary>
+    /// <summary> 残り秒数が設定・更新されたときに通知する </summary>
     public event Action<float> OnTimeChanged;
-    /// <summary> 制限時間が0になったときに通知する。 </summary>
+    /// <summary> 制限時間が0になったときに通知する </summary>
     public event Action OnStageTimeExpired;
-    /// <summary> 残り10秒に入ったときに通知する。 </summary>
+    /// <summary> 残り10秒に入ったときに通知する </summary>
     public event Action OnGimmickRushStarted;
 
-    /// <summary> 現在のタイマーを取得する。 </summary>
+    /// <summary> 現在のタイマーを取得する </summary>
     public static TimeManager Instance { get; private set; }
-    /// <summary> カウントダウン中かどうかを取得する。 </summary>
+    /// <summary> カウントダウン中かどうかを取得する </summary>
     public bool IsTimerRunning { get; private set; }
-    /// <summary> ラッシュ中かどうかを取得する。 </summary>
+    /// <summary> ラッシュ中かどうかを取得する </summary>
     public bool IsGimmickRushActive { get; private set; }
-    /// <summary> ステージの残り秒数を取得する。 </summary>
+    /// <summary> ステージの残り秒数を取得する </summary>
     public float RemainingSeconds { get; private set; }
 
-    /// <summary> 仕様で定められたラッシュ開始時の残り秒数。 </summary>
+    /// <summary> 仕様で定められたラッシュ開始時の残り秒数 </summary>
     public const float RUSH_REMAINING_SECONDS = 10f;
 
     internal const float DEFAULT_STAGE_DURATION_SECONDS = 30f;
 
     /// <summary>
-    ///     指定秒数でステージのカウントダウンを始める。
+    ///     指定秒数でステージのカウントダウンを始める
     /// </summary>
     public void StartStageTimer(float durationSeconds)
     {
@@ -42,7 +42,7 @@ public class TimeManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     カウントダウンとラッシュ状態を終了する。
+    ///     カウントダウンとラッシュ状態を終了する
     /// </summary>
     public void StopTimer()
     {
@@ -89,7 +89,7 @@ public class TimeManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     残り時間を反映し、一度だけラッシュ開始を通知する。
+    ///     残り時間を反映し、一度だけラッシュ開始を通知する
     /// </summary>
     private void PublishTime()
     {

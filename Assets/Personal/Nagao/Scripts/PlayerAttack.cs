@@ -1,43 +1,46 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
-///     プレイヤーの攻撃判定の有効時間とクールタイムを管理する。
+///     プレイヤーの攻撃判定の有効時間とクールタイムを管理する
 /// </summary>
 public class PlayerAttack : MonoBehaviour
 {
-    /// <summary> クールタイムが明けて攻撃が成立したときに通知する。 </summary>
+    /// <summary> 攻撃が始まったときに通知する </summary>
     public event Action OnAttackStarted;
 
-    // 既存の呼び出し元とシーンの設定を維持する。
-    public float coolTime = 3f;
-
-    [SerializeField, Tooltip("攻撃中だけ有効にする当たり判定。")]
-    private GameObject attackHitBox;
-    [SerializeField, Tooltip("当たり判定が有効な時間（秒）。")]
-    private float attackDuration = 0.2f;
+    [FormerlySerializedAs("attackHitBox")]
+    [SerializeField, Tooltip("攻撃中だけ有効にする当たり判定")]
+    private GameObject _attackHitbox;
+    [FormerlySerializedAs("attackDuration")]
+    [SerializeField, Tooltip("当たり判定を有効にする時間（秒）")]
+    private float _attackDurationSeconds = 0.2f;
+    [FormerlySerializedAs("coolTime")]
+    [SerializeField, Tooltip("当たり判定が消えてから次の攻撃までの待ち時間（秒）")]
+    private float _cooldownSeconds = 3f;
 
     private Coroutine _attackRoutine;
 
     /// <summary>
-    ///     当たり判定を有効化して攻撃を開始する。
+    ///     攻撃可能な場合に当たり判定を有効化する
     /// </summary>
     public void Attack()
     {
-        if (_attackRoutine != null || attackHitBox == null || !isActiveAndEnabled)
+        if (!isActiveAndEnabled || _attackHitbox == null || _attackRoutine != null)
         {
             return;
         }
 
-        _attackRoutine = StartCoroutine(AttackCoroutine());
+        _attackRoutine = StartCoroutine(RunAttack());
         OnAttackStarted?.Invoke();
     }
 
     /// <summary>
-    ///     既存の呼び出し側から範囲攻撃を開始する。
+    ///     既存の対象指定付きの呼び出しから範囲攻撃を開始する
     /// </summary>
-    /// <param name="target"> 旧呼び出し側が指定する対象。接触した相手に判定する。 </param>
+    /// <param name="target"> 互換性のために受け取る攻撃対象 </param>
     public void Attack(GameObject target)
     {
         Attack();
@@ -45,9 +48,9 @@ public class PlayerAttack : MonoBehaviour
 
     private void Awake()
     {
-        if (attackHitBox != null)
+        if (_attackHitbox != null)
         {
-            attackHitBox.SetActive(false);
+            _attackHitbox.SetActive(false);
         }
     }
 
@@ -59,22 +62,22 @@ public class PlayerAttack : MonoBehaviour
             _attackRoutine = null;
         }
 
-        if (attackHitBox != null)
+        if (_attackHitbox != null)
         {
-            attackHitBox.SetActive(false);
+            _attackHitbox.SetActive(false);
         }
     }
 
     /// <summary>
-    ///     攻撃後に当たり判定を切り、クールタイムの終了を待つ。
+    ///     攻撃時間が過ぎたら当たり判定を無効化し、クールタイムの終了を待つ
     /// </summary>
-    private IEnumerator AttackCoroutine()
+    private IEnumerator RunAttack()
     {
-        attackHitBox.SetActive(true);
-        yield return new WaitForSeconds(attackDuration);
-        attackHitBox.SetActive(false);
+        _attackHitbox.SetActive(true);
+        yield return new WaitForSeconds(_attackDurationSeconds);
+        _attackHitbox.SetActive(false);
 
-        yield return new WaitForSeconds(coolTime);
+        yield return new WaitForSeconds(_cooldownSeconds);
         _attackRoutine = null;
     }
 }

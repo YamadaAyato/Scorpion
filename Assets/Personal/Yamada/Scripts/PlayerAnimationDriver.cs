@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Scorpion.Player
 {
     /// <summary>
-    ///     プレイヤーの移動・接地状態と実際に開始したアクションを Animator に反映する。
+    ///     プレイヤーの移動・接地状態と実際に開始したアクションを Animator に反映する
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(PlayerMove), typeof(Animator))]
@@ -50,7 +50,7 @@ namespace Scorpion.Player
         }
 
         /// <summary>
-        ///     成立したジャンプを Animator に通知する。
+        ///     成立したジャンプを Animator に通知する
         /// </summary>
         private void HandleJumpStarted()
         {
@@ -60,7 +60,7 @@ namespace Scorpion.Player
         }
 
         /// <summary>
-        ///     クールタイムを通過した攻撃を Animator に通知する。
+        ///     クールタイムを通過した攻撃を Animator に通知する
         /// </summary>
         private void HandleAttackStarted()
         {

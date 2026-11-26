@@ -3,32 +3,39 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 試合中のスコア・ステージ・残り時間・ラッシュ告知・リザルト画面のUI表示を管理するクラス。
+///     試合中のスコア・ステージ・残り時間・ラッシュ告知・リザルト画面のUI表示を管理するクラス
 /// </summary>
 [DefaultExecutionOrder(-100)]
 public class UIManager : MonoBehaviour
 {
     /// <summary>
-    /// どこからでもアクセスできる唯一のインスタンス。
+    ///     どこからでもアクセスできる唯一のインスタンス
     /// </summary>
     public static UIManager Instance { get; private set; }
 
     [Header("スコアUI参照")]
-    [Tooltip("1Pスコア表示")][SerializeField] private Text _playerOneScoreText; /// 1Pスコア表示
-    [Tooltip("2Pスコア表示")][SerializeField] private Text _playerTwoScoreText; /// 2Pスコア表示
+    [SerializeField, Tooltip("1Pスコア表示")]
+    private Text _playerOneScoreText;
+    [SerializeField, Tooltip("2Pスコア表示")]
+    private Text _playerTwoScoreText;
 
     [Header("進行・タイマーUI参照")]
-    [Tooltip("ステージ表示")][SerializeField] private Text _stageText; /// 現在のステージ表示
-    [Tooltip("残り時間")][SerializeField] private Text _timerText; /// 残り時間表示
-    [Tooltip("ラッシュ告知")][SerializeField] private Text _rushNoticeText; /// ギミックラッシュ告知表示
-    [SerializeField, Tooltip("カウントダウン、START、FINISH を表示する。")]
+    [SerializeField, Tooltip("ステージ表示")]
+    private Text _stageText;
+    [SerializeField, Tooltip("残り時間")]
+    private Text _timerText;
+    [SerializeField, Tooltip("ラッシュ告知")]
+    private Text _rushNoticeText;
+    [SerializeField, Tooltip("カウントダウン、START、FINISH を表示する")]
     private Text _stageCueText;
 
     [Header("リザルトUI参照")]
-    [Tooltip("勝敗結果表示")][SerializeField] private Text _resultText; /// 勝敗結果表示
-    [Tooltip("リザルトパネル")][SerializeField] private GameObject _resultPanel; /// 終了時に表示するパネル
+    [SerializeField, Tooltip("勝敗結果表示")]
+    private Text _resultText;
+    [SerializeField, Tooltip("リザルトパネル")]
+    private GameObject _resultPanel;
 
-    [SerializeField, Tooltip("ラッシュ中に使うタイマーの色。")]
+    [SerializeField, Tooltip("ラッシュ中に使うタイマーの色")]
     private Color _rushTimerColor = new Color(1f, 0.35f, 0.25f);
 
     private ScoreManager _scoreManager;
@@ -36,7 +43,7 @@ public class UIManager : MonoBehaviour
     private Color _normalTimerColor;
 
     /// <summary>
-    /// 残り時間表示を更新する（小数点以下は切り上げ表示）。
+    ///     残り時間表示を更新する（小数点以下は切り上げ表示）
     /// </summary>
     /// <param name="remainingSeconds">現在の残り時間（秒）</param>
     public void UpdateTimerText(float remainingSeconds)
@@ -48,11 +55,11 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// シングルトンインスタンスの初期化と重複破棄を行う。
+    ///     シングルトンインスタンスの初期化と重複破棄を行う
     /// </summary>
     private void Awake()
     {
-        /// 重複インスタンスがあれば破棄して1つだけ残す
+        ///     重複インスタンスがあれば破棄して1つだけ残す
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -67,7 +74,7 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 有効化時に各マネージャーのイベントを購読する。
+    ///     有効化時に各マネージャーのイベントを購読する
     /// </summary>
     private void OnEnable()
     {
@@ -75,17 +82,17 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 開始時にイベント購読の確定とUIの初期表示を行う。
+    ///     開始時にイベント購読の確定とUIの初期表示を行う
     /// </summary>
     private void Start()
     {
-        /// Awake後に各マネージャーのInstanceが揃ってから購読を確実にする
+        ///     Awake後に各マネージャーのInstanceが揃ってから購読を確実にする
         SubscribeEvents();
         InitializeUIState();
     }
 
     /// <summary>
-    /// 無効化時に登録したイベントの購読を解除する。
+    ///     無効化時に登録したイベントの購読を解除する
     /// </summary>
     private void OnDisable()
     {
@@ -101,7 +108,7 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// スコア変更イベントを受け取り、対象プレイヤーのスコア表示を更新する。
+    ///     スコア変更イベントを受け取り、対象プレイヤーのスコア表示を更新する
     /// </summary>
     /// <param name="playerIndex">スコアが変わったプレイヤー番号（1: 1P, 2: 2P）</param>
     /// <param name="newScore">更新後のスコア値</param>
@@ -118,7 +125,7 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ステージ開始イベントを受け取り、ステージ名の表示とラッシュ告知の非表示化を行う。
+    ///     ステージ開始イベントを受け取り、ステージ名の表示とラッシュ告知の非表示化を行う
     /// </summary>
     /// <param name="stageIndex">開始したステージのインデックス（0始まり）</param>
     /// <param name="stage">開始したステージの設定データ</param>
@@ -126,9 +133,9 @@ public class UIManager : MonoBehaviour
     {
         if (_stageText != null)
         {
-            _stageText.text = string.IsNullOrEmpty(stage.stageName)
+            _stageText.text = string.IsNullOrEmpty(stage.StageName)
                 ? $"STAGE {stageIndex + 1}"
-                : $"STAGE {stageIndex + 1}  {stage.stageName}";
+                : $"STAGE {stageIndex + 1}  {stage.StageName}";
         }
 
         if (_resultPanel != null)
@@ -150,7 +157,7 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ギミックラッシュ開始イベントを受け取り、ラッシュ告知UIを表示する。
+    ///     ギミックラッシュ開始イベントを受け取り、ラッシュ告知UIを表示する
     /// </summary>
     /// <param name="stageIndex">ラッシュが発生したステージのインデックス</param>
     /// <param name="stage">現在のステージ設定データ</param>
@@ -169,7 +176,7 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     カウントダウンとステージ終了の表示を切り替える。
+    ///     カウントダウンとステージ終了の表示を切り替える
     /// </summary>
     private void HandleStageCueChanged(string cue)
     {
@@ -186,7 +193,7 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 試合終了イベントを受け取り、勝敗結果を表示してリザルトパネルを開く。
+    ///     試合終了イベントを受け取り、勝敗結果を表示してリザルトパネルを開く
     /// </summary>
     /// <param name="winnerPlayerIndex">勝者番号（1: 1P勝利, 2: 2P勝利, 0: 引き分け）</param>
     private void HandleMatchFinished(int winnerPlayerIndex)
@@ -226,7 +233,7 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ScoreManager および GameManager のイベントを購読する。
+    ///     ScoreManager および GameManager のイベントを購読する
     /// </summary>
     private void SubscribeEvents()
     {
@@ -247,7 +254,7 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 購読中のイベントを解除し、再購読できる状態に戻す。
+    ///     購読中のイベントを解除し、再購読できる状態に戻す
     /// </summary>
     private void UnsubscribeEvents()
     {
@@ -268,7 +275,7 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 試合開始直後のUI初期状態（スコア・タイマー・告知・リザルトパネル）を整える。
+    ///     試合開始直後のUI初期状態（スコア・タイマー・告知・リザルトパネル）を整える
     /// </summary>
     private void InitializeUIState()
     {
