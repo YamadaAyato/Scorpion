@@ -44,7 +44,7 @@ namespace Scorpion.Gimmicks
         private PlayerMove _playerTwo;
 
         /// <summary>
-        ///     シーソーに重さを加える試合中のプレイヤーを登録する
+        ///     シーソーとステータス変化ギミックが参照するプレイヤーを登録する
         /// </summary>
         public void SetPlayers(PlayerMove playerOne, PlayerMove playerTwo)
         {
@@ -107,6 +107,24 @@ namespace Scorpion.Gimmicks
                 }
             });
             return true;
+        }
+
+        /// <summary>
+        ///     登録されたプレイヤーに効果を適用し、発動ごとの解除処理を登録する
+        /// </summary>
+        internal bool TryApplyPlayerEffect(GimmickContext context, System.Func<PlayerMove, System.Action> apply)
+        {
+            if (_playerOne != null)
+            {
+                context.RegisterCleanup(apply(_playerOne));
+            }
+
+            if (_playerTwo != null && _playerTwo != _playerOne)
+            {
+                context.RegisterCleanup(apply(_playerTwo));
+            }
+
+            return _playerOne != null || _playerTwo != null;
         }
 
         private void Awake()
