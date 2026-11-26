@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Scorpion.Gimmicks;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 /// <summary>
 ///     ステージの制限時間、シーン内の構成、復活位置とギミックを設定する
@@ -27,22 +26,16 @@ public struct StageDefinition
     /// <summary> ステージのギミック設定を取得する </summary>
     public StageGimmickSettings GimmickSettings => _gimmickSettings;
 
-    [FormerlySerializedAs("durationSeconds")]
     [SerializeField, Tooltip("制限時間（秒）。0の場合は30秒")]
     private float _durationSeconds;
-    [FormerlySerializedAs("stageName")]
     [SerializeField, Tooltip("画面に表示するステージ名")]
     private string _stageName;
-    [FormerlySerializedAs("stageRoots")]
     [SerializeField, Tooltip("このステージで有効化するオブジェクト群")]
     private GameObject[] _stageRoots;
-    [FormerlySerializedAs("playerOneSpawn")]
     [SerializeField, Tooltip("1Pの復活地点。未指定の場合は試合共通の位置を使用する")]
     private Transform _playerOneSpawn;
-    [FormerlySerializedAs("playerTwoSpawn")]
     [SerializeField, Tooltip("2Pの復活地点。未指定の場合は試合共通の位置を使用する")]
     private Transform _playerTwoSpawn;
-    [FormerlySerializedAs("gimmickSettings")]
     [SerializeField, Tooltip("通常・ラッシュの抽選とラッシュ突入時のギミック設定")]
     private StageGimmickSettings _gimmickSettings;
 }

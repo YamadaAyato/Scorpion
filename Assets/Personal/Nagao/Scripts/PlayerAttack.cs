@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 /// <summary>
 ///     プレイヤーの攻撃判定の有効時間とクールタイムを管理する
@@ -11,13 +10,10 @@ public class PlayerAttack : MonoBehaviour
     /// <summary> 攻撃が始まったときに通知する </summary>
     public event Action OnAttackStarted;
 
-    [FormerlySerializedAs("attackHitBox")]
     [SerializeField, Tooltip("攻撃中だけ有効にする当たり判定")]
     private GameObject _attackHitbox;
-    [FormerlySerializedAs("attackDuration")]
     [SerializeField, Tooltip("当たり判定を有効にする時間（秒）")]
     private float _attackDurationSeconds = 0.2f;
-    [FormerlySerializedAs("coolTime")]
     [SerializeField, Tooltip("当たり判定が消えてから次の攻撃までの待ち時間（秒）")]
     private float _cooldownSeconds = 3f;
 

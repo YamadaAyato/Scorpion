@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3641fe988f4471f4a9b7f0a53ccb2708, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDeath
-  respawnPoint: {fileID: 1524108900}
+  _respawnPoint: {fileID: 1524108900}
 --- !u!114 &145838367
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -149,12 +149,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a780b14dc51844cbb29a1b485d3592, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
-  isStunned: 0
-  moveSpeed: 5
-  airMoveSpeed: 2
-  jumpPower: 5
-  chargeJumpPower: 8
-  maxChargeTime: 0.3
+  _isStunned: 0
+  _moveSpeed: 5
+  _airMoveSpeed: 2
+  _jumpPower: 5
+  _chargeJumpPower: 8
+  _maxChargeTimeSeconds: 0.3
   _useArrowKeys: 0
 --- !u!54 &145838368
 Rigidbody:
@@ -403,8 +403,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd459ffd01e340a47a3f6bead8feafad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Hitbox
-  damagePower: 10
-  stunDuration: 0.5
+  _knockbackForce: 10
+  _stunDurationSeconds: 0.5
 --- !u!135 &325928619
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -690,7 +690,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3641fe988f4471f4a9b7f0a53ccb2708, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDeath
-  respawnPoint: {fileID: 2064167570}
+  _respawnPoint: {fileID: 2064167570}
 --- !u!114 &360887987
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -715,9 +715,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd9d86144d64bce4e8f4b6c6e1b8e781, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAttack
-  coolTime: 3
-  attackHitBox: {fileID: 325928617}
-  attackDuration: 0.2
+  _cooldownSeconds: 3
+  _attackHitbox: {fileID: 325928617}
+  _attackDurationSeconds: 0.2
 --- !u!114 &360887989
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -730,12 +730,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a780b14dc51844cbb29a1b485d3592, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
-  isStunned: 0
-  moveSpeed: 5
-  airMoveSpeed: 2
-  jumpPower: 5
-  chargeJumpPower: 8
-  maxChargeTime: 0.3
+  _isStunned: 0
+  _moveSpeed: 5
+  _airMoveSpeed: 2
+  _jumpPower: 5
+  _chargeJumpPower: 8
+  _maxChargeTimeSeconds: 0.3
   _useArrowKeys: 1
 --- !u!65 &360887990
 BoxCollider:
@@ -1169,10 +1169,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6df0ae696f71ea74f8932dbf8d501fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FallZone
-  players:
+  _players:
   - {fileID: 145838366}
   - {fileID: 360887986}
-  fallHeight: -5
+  _fallHeight: -5
 --- !u!4 &660460249
 Transform:
   m_ObjectHideFlags: 0
@@ -1443,8 +1443,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd459ffd01e340a47a3f6bead8feafad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Hitbox
-  damagePower: 10
-  stunDuration: 0.5
+  _knockbackForce: 10
+  _stunDurationSeconds: 0.5
 --- !u!135 &760210033
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1931,9 +1931,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd9d86144d64bce4e8f4b6c6e1b8e781, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAttack
-  coolTime: 3
-  attackHitBox: {fileID: 760210031}
-  attackDuration: 0.2
+  _cooldownSeconds: 3
+  _attackHitbox: {fileID: 760210031}
+  _attackDurationSeconds: 0.2
 --- !u!65 &1412709503
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2291,13 +2291,13 @@ MonoBehaviour:
   _playerTwoObject: {fileID: 360887984}
   _playerTwoSpawn: {fileID: 0}
   _stages:
-  - durationSeconds: 30
-    stageName: TEST PLATFORM
-    stageRoots:
+  - _durationSeconds: 30
+    _stageName: TEST PLATFORM
+    _stageRoots:
     - {fileID: 1517288537}
-    playerOneSpawn: {fileID: 1524108900}
-    playerTwoSpawn: {fileID: 2064167570}
-    gimmickSettings: {fileID: 11400000, guid: 93f76ad55d0aac241be01441e0021978, type: 2}
+    _playerOneSpawn: {fileID: 1524108900}
+    _playerTwoSpawn: {fileID: 2064167570}
+    _gimmickSettings: {fileID: 11400000, guid: 93f76ad55d0aac241be01441e0021978, type: 2}
   _respawnDelaySeconds: 0.75
   _gimmickManager: {fileID: 1883931659}
   _countdownSeconds: 3

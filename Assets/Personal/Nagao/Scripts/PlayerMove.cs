@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 /// <summary>
 ///     接地状態に応じてプレイヤーを移動させ、ジャンプと攻撃の入力を処理する
@@ -23,27 +22,21 @@ public class PlayerMove : MonoBehaviour
     public bool IsStunned => _isStunned;
 
     [Header("移動設定")]
-    [FormerlySerializedAs("moveSpeed")]
     [SerializeField, Tooltip("地上での横移動速度")]
     private float _moveSpeed = 5f;
-    [FormerlySerializedAs("airMoveSpeed")]
     [SerializeField, Tooltip("空中での横移動速度")]
     private float _airMoveSpeed = 2f;
 
     [Header("ジャンプ設定")]
-    [FormerlySerializedAs("jumpPower")]
     [SerializeField, Tooltip("踏み切り時に加える力")]
     private float _jumpPower = 5f;
-    [FormerlySerializedAs("chargeJumpPower")]
     [SerializeField, Tooltip("ジャンプキーを長押ししている間の上向き加速度")]
     private float _chargeJumpPower = 8f;
-    [FormerlySerializedAs("maxChargeTime")]
     [SerializeField, Tooltip("長押しで上向きに加速できる最長時間（秒）")]
     private float _maxChargeTimeSeconds = 0.3f;
 
     [SerializeField, Tooltip("オンの場合は矢印キーまたはテンキーで移動・ジャンプ・攻撃する")]
     private bool _useArrowKeys;
-    [FormerlySerializedAs("isStunned")]
     [SerializeField, HideInInspector]
     private bool _isStunned;
 

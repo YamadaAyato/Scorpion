@@ -1,15 +1,12 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
 /// <summary>
 ///     攻撃に触れた相手を吹き飛ばし、一定時間操作不能にする
 /// </summary>
 public class Hitbox : MonoBehaviour
 {
-    [FormerlySerializedAs("damagePower")]
     [SerializeField, Tooltip("相手を吹き飛ばす力")]
     private float _knockbackForce = 10f;
-    [FormerlySerializedAs("stunDuration")]
     [SerializeField, Tooltip("相手が操作できなくなる時間（秒）")]
     private float _stunDurationSeconds = 0.5f;
 

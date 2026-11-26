@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
 /// <summary>
 ///     落下を進行中の試合へ渡し、単体テスト時は既存の地点へ戻す
@@ -7,7 +6,6 @@ using UnityEngine.Serialization;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerDeath : MonoBehaviour
 {
-    [FormerlySerializedAs("respawnPoint")]
     [SerializeField, Tooltip("試合管理を使用しない場合の復活地点")]
     private Transform _respawnPoint;
 
