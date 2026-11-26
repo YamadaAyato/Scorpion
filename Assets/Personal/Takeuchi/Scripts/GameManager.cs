@@ -68,20 +68,26 @@ public class GameManager : MonoBehaviour
     }
 
     [Header("プレイヤー・UI参照")]
-    [SerializeField] private GameObject _playerOneObject; // 1P本体
-    [SerializeField] private Transform _playerOneSpawn; // 1Pスポーン位置
-    [SerializeField] private Text _playerOneScoreText; // 1Pスコア表示
-    [SerializeField] private GameObject _playerTwoObject; // 2P本体
-    [SerializeField] private Transform _playerTwoSpawn; // 2Pスポーン位置
-    [SerializeField] private Text _playerTwoScoreText; // 2Pスコア表示
-    [SerializeField] private Text _stageText; // 現在のステージ表示
-    [SerializeField] private Text _timerText; // 残り時間表示
-    [SerializeField] private Text _rushNoticeText; // ギミックラッシュ告知表示
+
+    [Header("1p本体・スポーン位置・スコア表示")]
+    [Tooltip("1ｐ本体")][SerializeField] private GameObject _playerOneObject; // 1P本体
+    [Tooltip("1ｐスポーン位置")][SerializeField] private Transform _playerOneSpawn; // 1Pスポーン位置
+    [Tooltip("1ｐスコア表示")][SerializeField] private Text _playerOneScoreText; // 1Pスコア表示
+
+    [Header("2p本体・スポーン位置・スコア表示")]
+    [Tooltip("2ｐ本体")][SerializeField] private GameObject _playerTwoObject; // 2P本体
+    [Tooltip("2ｐスポーン位置")][SerializeField] private Transform _playerTwoSpawn; // 2Pスポーン位置
+    [Tooltip("2ｐスコア表示")][SerializeField] private Text _playerTwoScoreText; // 2Pスコア表示
+
+    [Header("ステージ・残り時間・ラッシュ告知表示")]
+    [Tooltip("ステージ表示")][SerializeField] private Text _stageText; // 現在のステージ表示
+    [Tooltip("残り時間")][SerializeField] private Text _timerText; // 残り時間表示
+    [Tooltip("ラッシュ告知")][SerializeField] private Text _rushNoticeText; // ギミックラッシュ告知表示
 
     [Header("ステージ・復活ルール設定")]
-    [SerializeField] private float _respawnDelaySeconds = 1.5f; // 落下から復活までの待ち時間
-    [SerializeField] private int _pointPerFall = 1; // 落下1回あたりの加点（基本1pt）
-    [SerializeField] private List<StageDefinition> _stages = new List<StageDefinition>(); // 全ステージ設定
+    [Tooltip("復活ルール")] [SerializeField] private float _respawnDelaySeconds = 1.5f; // 落下から復活までの待ち時間
+    [Tooltip("落下スコア")] [SerializeField] private int _pointPerFall = 1; // 落下1回あたりの加点（基本1pt）
+    [Tooltip("ステージ設定")] [SerializeField] private List<StageDefinition> _stages = new List<StageDefinition>(); // 全ステージ設定
 
     private int _currentStageIndex;
     private int _playerOneScore; // ステージを跨いでも引き継ぐ合計スコア
