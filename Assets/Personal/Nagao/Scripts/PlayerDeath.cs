@@ -10,11 +10,6 @@ public class PlayerDeath : MonoBehaviour
         _rb = GetComponent<Rigidbody>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
     public void Death()
     {
         // •œŠˆ’n“_‚ÉˆÚ“®

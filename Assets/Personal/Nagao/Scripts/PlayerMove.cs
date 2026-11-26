@@ -14,20 +14,28 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] float chargeJumpPower = 8f;
     [SerializeField] float maxChargeTime = 0.3f;
 
+    [SerializeField] GameObject target;
+    private PlayerAttack playerAttack;
     private Rigidbody rb;
     private bool isGrounded;
     private bool _isJumpButtonPressed;
+    public bool isStunned;
 
     private float _chargeJumpTime;
 
+    private Coroutine stunRoutine;
+
     void Start()
     {
+        playerAttack = GetComponent<PlayerAttack>();
         rb = GetComponent<Rigidbody>();
     }
 
     void Update()
     {
         if (Keyboard.current == null) return;
+        if (isStunned) return;
+
 
         // ジャンプ開始
         if (Keyboard.current.wKey.wasPressedThisFrame && isGrounded)
@@ -44,10 +52,19 @@ public class PlayerMove : MonoBehaviour
         {
             _isJumpButtonPressed = false;
         }
+        //攻撃
+        if (Keyboard.current.sKey.wasPressedThisFrame)
+        {
+            if(target != null&&playerAttack!=null)
+            {
+                playerAttack.Attack(target);
+            }
+        }
     }
 
     void FixedUpdate()
     {
+        if (isStunned) return;
         Move();
         ChargeJump();
     }
@@ -117,5 +134,23 @@ public class PlayerMove : MonoBehaviour
             isGrounded = true;
             _isJumpButtonPressed = false;
         }
+    }
+    // 攻撃を受けたときに呼び出す（duration秒間、操作不能にする）
+    public void ApplyStun(float duration)
+    {
+        if (stunRoutine != null)
+        {
+            StopCoroutine(stunRoutine);
+        }
+        stunRoutine = StartCoroutine(StunCoroutine(duration));
+    }
+
+    System.Collections.IEnumerator StunCoroutine(float duration)
+    {
+        isStunned = true;
+        _isJumpButtonPressed = false; // ジャンプチャージ中だった場合も解除
+        yield return new WaitForSeconds(duration);
+        isStunned = false;
+        stunRoutine = null;
     }
 }
