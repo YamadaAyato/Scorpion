@@ -29,14 +29,14 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     /// <summary>
-    /// 外部（UI・演出・ギミック制御など）へ状態変化を通知するイベント
+    /// 外部へ状態変化を通知するイベント
     /// </summary>
     public event Action<int, StageDefinition> OnStageStarted; /// ステージ開始時
     public event Action<int, StageDefinition> OnGimmickRushStarted; /// 残り10秒ラッシュ突入時
     public event Action<int> OnMatchFinished; /// 全ステージ終了・勝敗確定時
 
     public bool IsMatchActive { get; private set; } /// 試合進行中かどうか
-    public bool IsGimmickRushActive { get; private set; } /// ギミックラッシュ中かどうか
+    public bool IsGimmickRushActive => TimeManager.Instance != null && TimeManager.Instance.IsGimmickRushActive;
 
     public int CurrentStageIndex
     {
@@ -44,37 +44,26 @@ public class GameManager : MonoBehaviour
         private set
         {
             _currentStageIndex = Mathf.Max(0, value);
-            UpdateStageUi(); /// ステージ番号が変わったら表示も更新
         }
     }
 
-    
+    [Header("プレイヤー")]
 
-    [Header("プレイヤー・UI参照")]
+    [Header("1P本体・スポーン位置")]
+    [Tooltip("1P本体")][SerializeField] private GameObject _playerOneObject; /// 1P本体
+    [Tooltip("1Pスポーン位置")][SerializeField] private Transform _playerOneSpawn; /// 1Pスポーン位置
 
-    [Header("1p本体・スポーン位置・スコア表示")]
-    [Tooltip("1ｐ本体")][SerializeField] private GameObject _playerOneObject; /// 1P本体
-    [Tooltip("1ｐスポーン位置")][SerializeField] private Transform _playerOneSpawn; /// 1Pスポーン位置
-    
-    [Header("2p本体・スポーン位置・スコア表示")]
-    [Tooltip("2ｐ本体")][SerializeField] private GameObject _playerTwoObject; /// 2P本体
-    [Tooltip("2ｐスポーン位置")][SerializeField] private Transform _playerTwoSpawn; /// 2Pスポーン位置
+    [Header("2P本体・スポーン位置")]
+    [Tooltip("2P本体")][SerializeField] private GameObject _playerTwoObject; /// 2P本体
+    [Tooltip("2Pスポーン位置")][SerializeField] private Transform _playerTwoSpawn; /// 2Pスポーン位置
 
     [Header("ステージ")]
-    [Tooltip("ステージ表示")][SerializeField] private Text _stageText; /// 現在のステージ表示
     [Tooltip("ステージ設定")][SerializeField] private List<StageDefinition> _stages = new List<StageDefinition>(); /// 全ステージ設定
 
-    [Header("残り時間・ラッシュ告知")]
-    [Tooltip("残り時間")][SerializeField] private Text _timerText; /// 残り時間表示
-    [Tooltip("ラッシュ告知")][SerializeField] private Text _rushNoticeText; /// ギミックラッシュ告知表示
-
     [Header("復活ルール設定")]
-    [Tooltip("復活ルール")] [SerializeField] private float _respawnDelaySeconds = 1.5f; /// 落下から復活までの待ち時間
+    [Tooltip("復活ルール")][SerializeField] private float _respawnDelaySeconds = 1.5f; /// 落下から復活までの待ち時間
 
     private int _currentStageIndex;
-    
-    private float _stageRemainingSeconds; /// 現ステージの残り秒数
-    private float _gimmickSpawnTimer; /// ギミック生成間隔カウント用
     private bool _isPlayerOneRespawning; /// 1P復活待ち中フラグ
     private bool _isPlayerTwoRespawning; /// 2P復活待ち中フラグ
     private Coroutine _matchCoroutine; /// 全体進行コルーチン
@@ -103,7 +92,11 @@ public class GameManager : MonoBehaviour
     {
         StopAllMatchCoroutines();
         ResetFlags();
-        ScoreManager.Instance.ResetScore(); /// スコアリセット
+
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.ResetScore(); /// スコアリセット
+        }
 
         IsMatchActive = true;
         _matchCoroutine = StartCoroutine(RunMatchSequence());
@@ -112,7 +105,6 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// 落下したプレイヤーを一旦非表示にして、一定時間後に復活させる
     /// </summary>
-    /// <param name="playerIndex"></param>
     public void StartRespawn(int playerIndex)
     {
         if (playerIndex == 1)
@@ -153,34 +145,59 @@ public class GameManager : MonoBehaviour
         Instance = this;
     }
 
+    private void OnEnable()
+    {
+        if (TimeManager.Instance != null)
+        {
+            TimeManager.Instance.OnGimmickRushStarted += HandleGimmickRushStarted;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (TimeManager.Instance != null)
+        {
+            TimeManager.Instance.OnGimmickRushStarted -= HandleGimmickRushStarted;
+        }
+    }
+
     private void Start()
     {
+        /// Awake後に購読漏れがないよう保険として登録
+        if (TimeManager.Instance != null)
+        {
+            TimeManager.Instance.OnGimmickRushStarted -= HandleGimmickRushStarted;
+            TimeManager.Instance.OnGimmickRushStarted += HandleGimmickRushStarted;
+        }
+
         StartMatch();
+    }
+
+    private void HandleGimmickRushStarted()
+    {
+        if (_stages.Count > 0 && CurrentStageIndex < _stages.Count)
+        {
+            OnGimmickRushStarted?.Invoke(CurrentStageIndex, _stages[CurrentStageIndex]);
+        }
     }
 
     /// <summary>
     /// 全ステージを順番に進行するメインループ
     /// </summary>
-    /// <returns></returns>
     private IEnumerator RunMatchSequence()
     {
         for (int stageIndex = 0; stageIndex < _stages.Count; stageIndex++)
         {
-            ApplyStage(stageIndex); /// ステージ切り替え＆タイマー初期化
+            ApplyStage(stageIndex); /// ステージ切り替え＆タイマー開始
 
-            while (_stageRemainingSeconds > 0f)
+            while (IsMatchActive && TimeManager.Instance != null && TimeManager.Instance.IsTimerRunning)
             {
-                if (!IsMatchActive)
-                {
-                    yield break;
-                }
-
-                _stageRemainingSeconds = Mathf.Max(0f, _stageRemainingSeconds - Time.deltaTime);
-                UpdateTimerUi();
-                EvaluateGimmickRush(_stages[stageIndex]); /// 残り10秒チェック
-                UpdateGimmickSpawner(_stages[stageIndex]); /// ギミック発生間隔管理
-
                 yield return null;
+            }
+
+            if (!IsMatchActive)
+            {
+                yield break;
             }
             /// 制限時間到達 → 次のステージへ（スコアはそのまま引き継ぎ）
         }
@@ -189,11 +206,10 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 試合開始時のスコア・復活状態・初期配置リセット
+    /// 試合開始時の復活状態・初期配置リセット
     /// </summary>
     private void ResetFlags()
     {
-        
         _isPlayerOneRespawning = false;
         _isPlayerTwoRespawning = false;
 
@@ -202,9 +218,8 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 指定ステージのオブジェクト表示切替とタイマー・ラッシュ状態の初期化
+    /// 指定ステージのオブジェクト表示切替とタイマー開始
     /// </summary>
-    /// <param name="stageIndex"></param>
     private void ApplyStage(int stageIndex)
     {
         if (_stages.Count == 0)
@@ -236,61 +251,22 @@ public class GameManager : MonoBehaviour
         }
 
         CurrentStageIndex = clampedIndex;
-        _stageRemainingSeconds = Mathf.Max(1f, currentStage.durationSeconds);
-        _gimmickSpawnTimer = 0f;
-        IsGimmickRushActive = false;
 
-        if (_rushNoticeText != null)
+        if (TimeManager.Instance != null)
         {
-            _rushNoticeText.gameObject.SetActive(false);
+            TimeManager.Instance.StartStageTimer(
+                currentStage.durationSeconds,
+                currentStage.rushThresholdSeconds,
+                currentStage.normalSpawnInterval,
+                currentStage.rushSpawnInterval);
         }
 
-        UpdateTimerUi();
         OnStageStarted?.Invoke(CurrentStageIndex, currentStage);
     }
 
     /// <summary>
-    /// 残り時間がしきい値（10秒）以下になったらギミックラッシュ開始
-    /// </summary>
-    /// <param name="stage"></param>
-    private void EvaluateGimmickRush(StageDefinition stage)
-    {
-        float threshold = stage.rushThresholdSeconds > 0f ? stage.rushThresholdSeconds : 10f;
-
-        if (!IsGimmickRushActive && _stageRemainingSeconds <= threshold)
-        {
-            IsGimmickRushActive = true;
-
-            if (_rushNoticeText != null)
-            {
-                _rushNoticeText.gameObject.SetActive(true);
-                _rushNoticeText.text = "GIMMICK RUSH!!";
-            }
-
-            OnGimmickRushStarted?.Invoke(CurrentStageIndex, stage);
-        }
-    }
-
-    /// <summary>
-    /// 通常時／ラッシュ時の間隔に合わせてギミック生成タイミングを進める
-    /// </summary>
-    /// <param name="stage"></param>
-    private void UpdateGimmickSpawner(StageDefinition stage)
-    {
-        float interval = IsGimmickRushActive
-            ? Mathf.Max(0.1f, stage.rushSpawnInterval)
-            : Mathf.Max(0.2f, stage.normalSpawnInterval);
-
-        _gimmickSpawnTimer += Time.deltaTime;
-
-        if (_gimmickSpawnTimer >= interval)
-        {
-            _gimmickSpawnTimer = 0f;
-            /// TODO: ここにギミック生成処理（またはギミックスポナー呼び出し）を入れる
-        }
-    }
-
     /// 復活待ち時間経過後にスポーン位置へ戻す
+    /// </summary>
     private IEnumerator RespawnAfterDelay(int playerIndex)
     {
         yield return new WaitForSeconds(_respawnDelaySeconds);
@@ -314,7 +290,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
     /// スポーン位置へ移動して即座に有効化
+    /// </summary>
     private void RespawnPlayerImmediate(int playerIndex)
     {
         if (playerIndex == 1 && _playerOneObject != null && _playerOneSpawn != null)
@@ -329,7 +307,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
     /// プレイヤーの表示/非表示を切り替え
+    /// </summary>
     private void SetPlayerActive(int playerIndex, bool isActive)
     {
         if (playerIndex == 1 && _playerOneObject != null)
@@ -342,9 +322,16 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
     /// 進行中・復活待ちコルーチンをまとめて停止
+    /// </summary>
     private void StopAllMatchCoroutines()
     {
+        if (TimeManager.Instance != null)
+        {
+            TimeManager.Instance.StopTimer();
+        }
+
         if (_matchCoroutine != null)
         {
             StopCoroutine(_matchCoroutine);
@@ -364,7 +351,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
     /// 全ステージ終了時の勝敗判定（1: 1P勝利 / 2: 2P勝利 / 0: 引き分け）
+    /// </summary>
     private void FinishMatch()
     {
         if (!IsMatchActive)
@@ -377,40 +366,20 @@ public class GameManager : MonoBehaviour
 
         int winnerPlayerIndex = 0;
 
-        if (ScoreManager.Instance.PlayerOneScore > ScoreManager.Instance.PlayerTwoScore)
+        if (ScoreManager.Instance != null)
         {
-            winnerPlayerIndex = 1;
-        }
-        else if (ScoreManager.Instance.PlayerTwoScore > ScoreManager.Instance.PlayerOneScore)
-        {
-            winnerPlayerIndex = 2;
+            if (ScoreManager.Instance.PlayerOneScore > ScoreManager.Instance.PlayerTwoScore)
+            {
+                winnerPlayerIndex = 1;
+            }
+            else if (ScoreManager.Instance.PlayerTwoScore > ScoreManager.Instance.PlayerOneScore)
+            {
+                winnerPlayerIndex = 2;
+            }
         }
 
         OnMatchFinished?.Invoke(winnerPlayerIndex);
     }
 
-
-    /// 残り時間UI更新（切り上げ表示）
-    private void UpdateTimerUi()
-    {
-        if (_timerText != null)
-        {
-            _timerText.text = Mathf.CeilToInt(_stageRemainingSeconds).ToString();
-        }
-    }
-
-    /// ステージ名UI更新
-    private void UpdateStageUi()
-    {
-        if (_stageText == null || _stages.Count == 0)
-        {
-            return;
-        }
-
-        string title = string.IsNullOrEmpty(_stages[CurrentStageIndex].stageName)
-            ? $"STAGE {CurrentStageIndex + 1}"
-            : _stages[CurrentStageIndex].stageName;
-
-        _stageText.text = title;
-    }
+    
 }
