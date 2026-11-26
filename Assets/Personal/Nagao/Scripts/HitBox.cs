@@ -18,10 +18,12 @@ public class Hitbox : MonoBehaviour
 
     private readonly HashSet<Rigidbody> _hitBodies = new();
     private Rigidbody _attacker;
+    private PlayerAttack _playerAttack;
 
     private void Awake()
     {
         _attacker = GetComponentInParent<Rigidbody>();
+        _playerAttack = GetComponentInParent<PlayerAttack>();
     }
 
     private void OnEnable()
@@ -50,9 +52,10 @@ public class Hitbox : MonoBehaviour
             return;
         }
 
+        float multiplier = _playerAttack != null ? _playerAttack.KnockbackMultiplier : 1f;
         if (!isPlayer)
         {
-            LaunchObstacle(targetBody, obstacle);
+            LaunchObstacle(targetBody, obstacle, multiplier);
             return;
         }
 
@@ -60,18 +63,18 @@ public class Hitbox : MonoBehaviour
         // 地上でも押し合いから離れるよう、吹き飛ぶ方向に上向きの成分を加える
         Vector3 direction = (targetBody.position - _attacker.position).normalized;
         Vector3 knockbackDirection = (direction + Vector3.up * 0.5f).normalized;
-        targetBody.AddForce(knockbackDirection * _knockbackForce, ForceMode.Impulse);
+        targetBody.AddForce(knockbackDirection * (_knockbackForce * multiplier), ForceMode.Impulse);
     }
 
     /// <summary>
     ///     落下中でも攻撃者から離れる方向へ持ち上げる
     /// </summary>
-    private void LaunchObstacle(Rigidbody body, AttackableObstacle obstacle)
+    private void LaunchObstacle(Rigidbody body, AttackableObstacle obstacle, float multiplier)
     {
         float direction = body.position.x < _attacker.position.x ? -1f : 1f;
         Vector3 velocity = body.linearVelocity;
-        velocity.x = direction * _obstacleHorizontalSpeed;
-        velocity.y = Mathf.Max(velocity.y, _obstacleUpwardSpeed);
+        velocity.x = direction * _obstacleHorizontalSpeed * multiplier;
+        velocity.y = Mathf.Max(velocity.y, _obstacleUpwardSpeed * multiplier);
         obstacle.Launch(_attacker, velocity);
     }
 }

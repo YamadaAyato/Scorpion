@@ -114,17 +114,13 @@ namespace Scorpion.Gimmicks
         /// </summary>
         internal bool TryApplyPlayerEffect(GimmickContext context, System.Func<PlayerMove, System.Action> apply)
         {
-            if (_playerOne != null)
-            {
-                context.RegisterCleanup(apply(_playerOne));
-            }
+            System.Action cleanupOne = _playerOne != null ? apply(_playerOne) : null;
+            context.RegisterCleanup(cleanupOne);
 
-            if (_playerTwo != null && _playerTwo != _playerOne)
-            {
-                context.RegisterCleanup(apply(_playerTwo));
-            }
+            System.Action cleanupTwo = _playerTwo != null && _playerTwo != _playerOne ? apply(_playerTwo) : null;
+            context.RegisterCleanup(cleanupTwo);
 
-            return _playerOne != null || _playerTwo != null;
+            return cleanupOne != null || cleanupTwo != null;
         }
 
         private void Awake()
