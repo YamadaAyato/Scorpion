@@ -331,12 +331,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a780b14dc51844cbb29a1b485d3592, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
-  _moveSpeed: 7
-  _airMoveSpeed: 3.5
+  _moveSpeed: 5.5
+  _airMoveSpeed: 2.2
   _groundAcceleration: 75
-  _airAcceleration: 33
-  _jumpPower: 8
-  _chargeJumpPower: 12
+  _airAcceleration: 20
+  _jumpPower: 5.5
+  _chargeJumpPower: 9
   _maxChargeTimeSeconds: 0.3
   _useArrowKeys: 0
   _isStunned: 0
@@ -390,7 +390,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAttack
   _attackHitbox: {fileID: 4299669806737044684}
   _attackDurationSeconds: 0.2
-  _cooldownSeconds: 2
+  _cooldownSeconds: 2.8
 --- !u!114 &2765169488294616552
 MonoBehaviour:
   m_ObjectHideFlags: 0
