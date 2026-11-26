@@ -6,11 +6,9 @@ public class WindCollider : MonoBehaviour
     [SerializeField] private float _windForce;
 
     private int _direction;
-    private Collider _collider;
 
     private void Start()
     {
-        _collider = GetComponent<Collider>();
         _direction = Random.Range(0, 2) == 0 ? -1 : 1;
     }
 

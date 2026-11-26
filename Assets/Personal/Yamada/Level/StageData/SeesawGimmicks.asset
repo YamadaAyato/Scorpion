@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e43478b8ee268df479df0153f6dbcf07, type: 3}
+  m_Name: SeesawGimmicks
+  m_EditorClassIdentifier: Assembly-CSharp::Scorpion.Gimmicks.StageGimmickSettings
+  _normalInterval: 5
+  _rushInterval: 2
+  _normalEntries:
+  - _definition: {fileID: 11400000, guid: 5bdca1bd541e6994f97aa1ada7818b95, type: 2}
+    _weight: 1
+  - _definition: {fileID: 11400000, guid: b72477efd5db5b24d873f1a778170a4b, type: 2}
+    _weight: 2
+  - _definition: {fileID: 11400000, guid: b899607929faf554fb8e815e725e99f7, type: 2}
+    _weight: 1
+  - _definition: {fileID: 11400000, guid: d967a7dc5cab7de4182cd59c8f3e43f5, type: 2}
+    _weight: 1
+  _rushEntries:
+  - _definition: {fileID: 11400000, guid: 5bdca1bd541e6994f97aa1ada7818b95, type: 2}
+    _weight: 1
+  - _definition: {fileID: 11400000, guid: b72477efd5db5b24d873f1a778170a4b, type: 2}
+    _weight: 4
+  - _definition: {fileID: 11400000, guid: b899607929faf554fb8e815e725e99f7, type: 2}
+    _weight: 2
+  - _definition: {fileID: 11400000, guid: d967a7dc5cab7de4182cd59c8f3e43f5, type: 2}
+    _weight: 2
+  _rushStartGimmicks:
+  - {fileID: 11400000, guid: d967a7dc5cab7de4182cd59c8f3e43f5, type: 2}
+  - {fileID: 11400000, guid: b72477efd5db5b24d873f1a778170a4b, type: 2}

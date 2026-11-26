@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35ea5a879af06324bbafab1024c88363, type: 3}
+  m_Name: StrongWind
+  m_EditorClassIdentifier: Assembly-CSharp::Scorpion.Gimmicks.GimmickDefinition
+  _displayName: "\u5F37\u98A8"
+  _description: "\u6A2A\u65B9\u5411\u306B\u98A8\u304C\u5439\u304F"
+  _duration: 4
+  _action:
+    rid: 4673120731219886359
+  references:
+    version: 2
+    RefIds:
+    - rid: 4673120731219886359
+      type: {class: WindAction, ns: Scorpion.Gimmicks, asm: Assembly-CSharp}
+      data: 

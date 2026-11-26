@@ -8,13 +8,16 @@ namespace Scorpion.Gimmicks
     /// </summary>
     public sealed class GimmickContext
     {
-        internal GimmickContext(Vector3 spawnOrigin)
+        internal GimmickContext(Vector3 spawnOrigin, StageGimmickTargets stageTargets)
         {
             SpawnOrigin = spawnOrigin;
+            StageTargets = stageTargets;
         }
 
         /// <summary> ステージ上の妨害物の出現基準位置を取得する </summary>
         public Vector3 SpawnOrigin { get; }
+        /// <summary> 現在のステージにあるギミック対象を取得する </summary>
+        public StageGimmickTargets StageTargets { get; }
 
         internal int ScoreMultiplier { get; private set; } = 1;
 
