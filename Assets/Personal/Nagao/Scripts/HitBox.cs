@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Scorpion.Gimmicks;
 using UnityEngine;
@@ -7,6 +8,9 @@ using UnityEngine;
 /// </summary>
 public class Hitbox : MonoBehaviour
 {
+    /// <summary> 攻撃が有効な対象に命中したときに通知する </summary>
+    public static event Action OnHitConfirmed;
+
     [SerializeField, Tooltip("相手を吹き飛ばす力")]
     private float _knockbackForce = 10f;
     [SerializeField, Tooltip("相手が操作できなくなる時間（秒）")]
@@ -61,6 +65,7 @@ public class Hitbox : MonoBehaviour
         if (!isPlayer)
         {
             LaunchObstacle(targetBody, obstacle, multiplier);
+            OnHitConfirmed?.Invoke();
             return;
         }
 
@@ -69,6 +74,7 @@ public class Hitbox : MonoBehaviour
         Vector3 direction = (targetBody.position - _attacker.position).normalized;
         Vector3 knockbackDirection = (direction + Vector3.up * 0.5f).normalized;
         targetBody.AddForce(knockbackDirection * (_knockbackForce * multiplier), ForceMode.Impulse);
+        OnHitConfirmed?.Invoke();
     }
 
     /// <summary>
