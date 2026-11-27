@@ -37,6 +37,9 @@ public class UIManager : MonoBehaviour
     private Text _resultText;
     [SerializeField, Tooltip("リザルトパネル")]
     private GameObject _resultPanel;
+    [Header("敗北テキスト ")]
+    [SerializeField,Tooltip("プレイヤー1敗北表示")]private GameObject _playerOneLoseText;
+    [SerializeField,Tooltip("プレイヤー2敗北表示")]private GameObject _playerTwoLoseText;
 
     [SerializeField, Tooltip("ラッシュ中に使うタイマーの色")]
     private Color _rushTimerColor = new Color(1f, 0.35f, 0.25f);
@@ -335,10 +338,15 @@ public class UIManager : MonoBehaviour
         if (winnerPlayerIndex == 1)
         {
             _resultText.text = "1P WIN!";
+
+            _playerOneLoseText.SetActive(false);
+
         }
         else if (winnerPlayerIndex == 2)
         {
             _resultText.text = "2P WIN!";
+
+            _playerTwoLoseText.SetActive(false);
         }
         else
         {
