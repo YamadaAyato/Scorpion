@@ -2102,6 +2102,7 @@ MonoBehaviour:
   _flashSeconds: 0.2
   _flashSortingOrder: -50
   _useTimeScale: 1
+  _attackHitStopSeconds: 0.06
   _hitStopSeconds: 0.08
   _hitStopTimeScale: 0.03
   _slowSeconds: 0.35
