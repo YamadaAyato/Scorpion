@@ -200,7 +200,7 @@ MonoBehaviour:
   _seesaw: {fileID: 4632495175213856554}
   _seesawRestoringForce: 30
   _seesawDegreesPerMoment: 5
-  _seesawMaxTilt: 30
+  _seesawMaxTilt: 28
   _windObject: {fileID: 5474018692611011637}
   _gear: {fileID: 0}
   _gearDegreesPerSecond: 72
@@ -213,6 +213,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4823081794702466656}
     m_Modifications:
+    - target: {fileID: 262001752429657599, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 37721715591c5d24188c870372ef90d6, type: 2}
+    - target: {fileID: 351343814850688147, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 351343814850688147, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 351343814850688147, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.39
+      objectReference: {fileID: 0}
+    - target: {fileID: 682582393560851756, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 682582393560851756, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -265,10 +285,18 @@ PrefabInstance:
       propertyPath: _windForce
       value: 20
       objectReference: {fileID: 0}
+    - target: {fileID: 1638416234817872442, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -4556068400496857591, guid: 20b6527e955405c459dec73776dd8a34, type: 3}
     - target: {fileID: 2345786891239460820, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
       propertyPath: m_AngularDamping
       value: 1.8
       objectReference: {fileID: 0}
+    - target: {fileID: 2685651008926772722, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -3457915039662537676, guid: f0247322e33e1624b9599b74a556577d, type: 3}
     - target: {fileID: 3113002814777904331, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -284,6 +312,34 @@ PrefabInstance:
     - target: {fileID: 5452283896462697356, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
       propertyPath: m_TagString
       value: Ground
+      objectReference: {fileID: 0}
+    - target: {fileID: 6111733845201296524, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a0e9befd0dba26c40a95501639191a5f, type: 2}
+    - target: {fileID: 6359788406585930844, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_Size.x
+      value: 9.340371
+      objectReference: {fileID: 0}
+    - target: {fileID: 6359788406585930844, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_Size.y
+      value: 0.5165415
+      objectReference: {fileID: 0}
+    - target: {fileID: 6359788406585930844, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_Center.x
+      value: -0.2531203
+      objectReference: {fileID: 0}
+    - target: {fileID: 6359788406585930844, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_Center.y
+      value: -0.24172926
+      objectReference: {fileID: 0}
+    - target: {fileID: 7540911071168034373, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7540911071168034373, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.06
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
