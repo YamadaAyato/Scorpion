@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Scorpion.Gimmicks;
 using Scorpion.UI;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 ///     ステージPrefab、制限時間とギミックを設定する
@@ -69,6 +70,15 @@ public class GameManager : MonoBehaviour
     private GameObject _playerOneObject;
     [SerializeField, Tooltip("2P本体")]
     private GameObject _playerTwoObject;
+    [SerializeField, Tooltip("1Pの勝利2D画像")]
+    private Image __playerOneWinImage;
+    [SerializeField, Tooltip("1Pの敗北2D画像")]
+    private Image __playerOneLoseImage;
+
+    [SerializeField, Tooltip("2Pの勝利2D画像")]
+    private Image __playerTwoWinImage;
+    [SerializeField, Tooltip("2Pの敗北2D画像")]
+    private Image __playerTwoLoseImage;
     [SerializeField, Tooltip("試合で使用するステージを進行順に並べる")]
     private List<StageDefinition> _stages = new();
     [SerializeField, Tooltip("落下から復活までの待ち時間（秒）")]
@@ -180,6 +190,10 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         StartMatch();
+        __playerOneLoseImage.enabled=false;
+        __playerOneWinImage.enabled=false;
+        __playerTwoLoseImage.enabled=false;
+        __playerTwoWinImage.enabled=false;
     }
 
     private void OnDisable()
@@ -511,5 +525,15 @@ public class GameManager : MonoBehaviour
         int winner = score.PlayerOneScore == score.PlayerTwoScore ? 0
             : score.PlayerOneScore > score.PlayerTwoScore ? 1 : 2;
         OnMatchFinished?.Invoke(winner);
+        if (winner == 1)
+        {
+            __playerOneWinImage.enabled=true;
+            __playerTwoLoseImage.enabled=true;
+        }
+        else
+        {
+            __playerTwoWinImage.enabled = true;
+            __playerOneLoseImage.enabled = true;
+        }
     }
 }
