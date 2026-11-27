@@ -552,8 +552,14 @@ public class GameManager : MonoBehaviour
     private static void SetResultImageVisible(Image image, bool isVisible)
     {
         if (image != null)
+======        if (winner == 2) 
         {
             image.enabled = isVisible;
+        }
+        else
+        {
+            __playerOneLoseImage.enabled=true ;
+            __playerTwoLoseImage.enabled=true ;
         }
     }
 }

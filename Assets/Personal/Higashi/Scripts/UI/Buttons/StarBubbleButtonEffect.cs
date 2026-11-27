@@ -34,11 +34,8 @@ public class StarBubbleButtonEffect : ButtonEffectBase
     [Tooltip("星が画面を覆いきったときにすること（オプションのパネルの切り替えなど）。何か入れると、シーンを切り替えずにそのまま元の画面を見せる。シーンを切り替えるボタンでは空にしておく")]
     [SerializeField] private UnityEvent _onTransitionCovered = new UnityEvent();
 
-    [Tooltip("選んだとき（カーソルを合わせたとき）に鳴らす効果音の名前（AudioManager の SE List の Name）。空なら鳴らさない")]
-    [SerializeField] private string _highlightSe = "se_botton_01";
-
-    [Tooltip("押したときに鳴らす効果音の名前。空なら鳴らさない")]
-    [SerializeField] private string _pressSe = "se_botton_02";
+    [Tooltip("押したときに鳴らす効果音の名前（AudioManager の SE List の Name）。この中からランダムに鳴らす。空なら鳴らさない")]
+    [SerializeField] private string[] _pressSes = { "se_botton_01", "se_botton_02" };
 
     private Vector2 _starBasePosition;
     private Vector2 _starBaseCenter;
@@ -195,7 +192,6 @@ public class StarBubbleButtonEffect : ButtonEffectBase
         {
             MoveStar(target, -ROLL_ANGLE, ROLL_DURATION);
             SpawnHighlightPetals();
-            PlaySe(_highlightSe);
         }
         else
         {
@@ -245,7 +241,7 @@ public class StarBubbleButtonEffect : ButtonEffectBase
         SpawnBurst(center, BURST_BUBBLE_COUNT, BURST_DISTANCE_RANGE, BURST_BUBBLE_SIZE_RANGE, CIRCLE_POINTS, CIRCLE_INNER_RATIO, BURST_DURATION, BURST_BUBBLE_COLOR);
         SpawnBurst(center, BURST_STAR_COUNT, BURST_DISTANCE_RANGE, BURST_STAR_SIZE_RANGE, STAR_POINTS, STAR_INNER_RATIO, BURST_DURATION);
         SpawnPressPetals(center);
-        PlaySe(_pressSe);
+        PlayRandomSe(_pressSes);
         HideBubbles();
 
         bool hasCoveredAction = _onTransitionCovered.GetPersistentEventCount() > 0;
@@ -563,9 +559,12 @@ public class StarBubbleButtonEffect : ButtonEffectBase
         }
     }
 
-    /// <summary> 名前が入っていれば、その効果音を鳴らす（AudioManager がなければ何もしない）。 </summary>
-    private static void PlaySe(string seName)
+    /// <summary> 候補の中からランダムに1つ効果音を鳴らす（候補がない・AudioManager がないときは何もしない）。 </summary>
+    private static void PlayRandomSe(string[] candidates)
     {
+        if (candidates == null || candidates.Length == 0) return;
+
+        string seName = candidates[Random.Range(0, candidates.Length)];
         if (!string.IsNullOrEmpty(seName)) AudioManager.Instance?.PlaySE(seName);
     }
 }
