@@ -38,9 +38,12 @@ public class PlayerDeath : MonoBehaviour
 
         if (_respawnPoint != null)
         {
-            _rigidbody.position = _respawnPoint.position;
-            _rigidbody.linearVelocity = Vector3.zero;
-            _rigidbody.angularVelocity = Vector3.zero;
+            ResetBodyForSpawn(_rigidbody, _respawnPoint.position);
+            if (TryGetComponent(out PlayerMove movement))
+            {
+                movement.ResetMovementState();
+            }
+
             StartRespawnProtection();
         }
     }
@@ -81,6 +84,25 @@ public class PlayerDeath : MonoBehaviour
         }
     }
 
+    /// <summary>
+    ///     配置位置へ移動し、前の落下や被弾で残った速度と力を消して物理を再開する
+    /// </summary>
+    internal static void ResetBodyForSpawn(Rigidbody body, Vector3 position)
+    {
+        body.position = position;
+        if (body.isKinematic)
+        {
+            return;
+        }
+
+        body.linearVelocity = Vector3.zero;
+        body.angularVelocity = Vector3.zero;
+
+        // 次の物理更新に持ち越された力も消してから、重力が通常どおり働く状態に戻す
+        body.Sleep();
+        body.WakeUp();
+    }
+
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
@@ -96,6 +118,7 @@ public class PlayerDeath : MonoBehaviour
             return;
         }
 
+        // 接地の有無と切り離し、復活からの経過時間で点滅と無敵を終える
         float remaining = _protectionEndsAt - Time.time;
         if (remaining <= 0f)
         {
@@ -136,6 +159,7 @@ public class PlayerDeath : MonoBehaviour
                 if (body != null && body.enabled && !body.isTrigger && body.attachedRigidbody == _rigidbody &&
                     !Physics.GetIgnoreCollision(body, other))
                 {
+                    // 今回無視した組だけを記録し、元から無視されていた組には触れない
                     Physics.IgnoreCollision(body, other);
                     _ignoredCollisions.Add((body, other));
                 }

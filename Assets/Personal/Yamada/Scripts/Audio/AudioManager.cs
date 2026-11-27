@@ -1,6 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 namespace Scorpion.Audio
@@ -56,7 +56,7 @@ namespace Scorpion.Audio
         private readonly List<SePlayback> _activeSe = new();
         private AudioSource _bgmSource;
         private SoundData _currentBgm;
-        private Coroutine _fadeRoutine;
+        private Tween _fadeTween;
         private float _fadeVolume = 1f;
 
         private const string MASTER_VOLUME_KEY = "Scorpion.Audio.Master";
@@ -136,7 +136,7 @@ namespace Scorpion.Audio
         public void PlayBGM(string name)
         {
             SoundData sound = FindSound(_bgmList, name);
-            if (sound == null || (sound == _currentBgm && _bgmSource.isPlaying && _fadeVolume == 1f && _fadeRoutine == null))
+            if (sound == null || (sound == _currentBgm && _bgmSource.isPlaying && _fadeVolume == 1f && _fadeTween == null))
             {
                 return;
             }
@@ -165,7 +165,15 @@ namespace Scorpion.Audio
             }
 
             CancelFade();
-            _fadeRoutine = StartCoroutine(FadeOutBgm(fadeTime));
+            // ポーズ中もフェードを進め、BGMつまみの設定値は維持する
+            _fadeTween = DOTween.To(() => _fadeVolume, SetFadeVolume, 0f, fadeTime)
+                .SetEase(Ease.Linear)
+                .SetUpdate(true)
+                .OnComplete(() =>
+                {
+                    _fadeTween = null;
+                    StopBGM();
+                });
         }
 
         /// <summary>
@@ -203,6 +211,7 @@ namespace Scorpion.Audio
 
         private void Update()
         {
+            // 一時停止中の効果音は再開できるように残す
             if (AudioListener.pause)
             {
                 return;
@@ -243,6 +252,7 @@ namespace Scorpion.Audio
 
         private void OnDestroy()
         {
+            CancelFade();
             if (Instance == this)
             {
                 Instance = null;
@@ -265,30 +275,17 @@ namespace Scorpion.Audio
         /// </summary>
         private void CancelFade()
         {
-            if (_fadeRoutine != null)
-            {
-                StopCoroutine(_fadeRoutine);
-                _fadeRoutine = null;
-            }
+            _fadeTween?.Kill();
+            _fadeTween = null;
         }
 
         /// <summary>
         ///     音量つまみの設定とは別にフェードの進行度を更新する
         /// </summary>
-        private IEnumerator FadeOutBgm(float duration)
+        private void SetFadeVolume(float volume)
         {
-            float startVolume = _fadeVolume;
-            float elapsed = 0f;
-            while (elapsed < duration)
-            {
-                yield return null;
-                elapsed += Time.unscaledDeltaTime;
-                _fadeVolume = Mathf.Lerp(startVolume, 0f, elapsed / duration);
-                ApplyBgmVolume();
-            }
-
-            _fadeRoutine = null;
-            StopBGM();
+            _fadeVolume = volume;
+            ApplyBgmVolume();
         }
 
         /// <summary>

@@ -39,6 +39,7 @@ namespace Scorpion.Gimmicks
                 return false;
             }
 
+            // 複数回の崩落が重なっても、この発動で実際に消した板だけを復元する
             var hiddenBoards = new List<GameObject>();
             Sequence sequence = DOTween.Sequence();
             int count = Mathf.Min(Mathf.Max(1, _boardCount), candidates.Count);
@@ -63,6 +64,7 @@ namespace Scorpion.Gimmicks
 
             context.RegisterCleanup(() =>
             {
+                // 先に予約済みの崩落を止め、復元した板が後から消えないようにする
                 sequence.Kill();
                 foreach (GameObject board in hiddenBoards)
                 {

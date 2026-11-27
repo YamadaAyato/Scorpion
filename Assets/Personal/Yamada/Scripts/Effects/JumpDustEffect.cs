@@ -193,6 +193,7 @@ namespace Scorpion.Effects
         /// </summary>
         private void TryEmitLandingDust()
         {
+            // 短い接地切れや落下速度の小さい着地では、足元の粒を出さない
             float fallSpeed = -_lastAirVelocityY;
             if (!_emitOnLanding || _airTimeSeconds < _minAirTimeSeconds || fallSpeed < _landingFallSpeedRange.x)
             {
@@ -254,9 +255,10 @@ namespace Scorpion.Effects
             ParticleSystem.VelocityOverLifetimeModule velocity = particles.velocityOverLifetime;
             velocity.enabled = true;
             velocity.space = ParticleSystemSimulationSpace.World;
-            velocity.x = new ParticleSystem.MinMaxCurve(0f);
+            // Unityは3軸に同じ速度モードを要求するため、動かさない軸も上下限を0にした範囲で指定する
+            velocity.x = new ParticleSystem.MinMaxCurve(0f, 0f);
             velocity.y = new ParticleSystem.MinMaxCurve(_puffRiseSpeed * 0.5f, _puffRiseSpeed);
-            velocity.z = new ParticleSystem.MinMaxCurve(0f);
+            velocity.z = new ParticleSystem.MinMaxCurve(0f, 0f);
 
             ApplyDrag(particles, _puffDrag);
 

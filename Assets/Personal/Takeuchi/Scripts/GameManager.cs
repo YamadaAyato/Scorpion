@@ -57,6 +57,13 @@ public class GameManager : MonoBehaviour
     /// <summary> 加点時に使う現在のギミック倍率を取得する </summary>
     public int ScoreMultiplier => _gimmickManager != null ? _gimmickManager.ScoreMultiplier : 1;
 
+    /// <summary> UIが追従する1P本体を取得する </summary>
+    internal GameObject PlayerOneObject => _playerOneObject;
+    /// <summary> UIが追従する2P本体を取得する </summary>
+    internal GameObject PlayerTwoObject => _playerTwoObject;
+    /// <summary> HUDが発動通知を購読するギミック管理を取得する </summary>
+    internal GimmickManager Gimmicks => _gimmickManager;
+
     [SerializeField, Tooltip("1P本体")]
     private GameObject _playerOneObject;
     [SerializeField, Tooltip("2P本体")]
@@ -262,6 +269,7 @@ public class GameManager : MonoBehaviour
 
         PlacePlayer(1, isRespawn: false);
         PlacePlayer(2, isRespawn: false);
+        SetPlayersStageIntroFrozen(true);
     }
 
     /// <summary>
@@ -286,6 +294,12 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(1f);
         }
 
+        // カウントだけでなく START の表示中も入力を止め、表示が消えてから試合を進める
+        OnStageCueChanged?.Invoke("START");
+        yield return new WaitForSeconds(0.5f);
+        _stageCueCoroutine = null;
+        OnStageCueChanged?.Invoke(string.Empty);
+
         float duration = stage.DurationSeconds;
         if (_gimmickManager != null)
         {
@@ -295,12 +309,9 @@ public class GameManager : MonoBehaviour
             _gimmickManager.StartStage(stage.GimmickSettings, duration, targets);
         }
 
+        SetPlayersStageIntroFrozen(false);
         SetPlayerInputEnabled(true);
         _timer.StartStageTimer(duration);
-        OnStageCueChanged?.Invoke("START");
-        yield return new WaitForSeconds(0.5f);
-        _stageCueCoroutine = null;
-        OnStageCueChanged?.Invoke(string.Empty);
     }
 
     /// <summary>
@@ -351,6 +362,22 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
+    ///     落下しても復活できない開始演出中だけ、両プレイヤーを開始地点に留める
+    /// </summary>
+    private void SetPlayersStageIntroFrozen(bool frozen)
+    {
+        if (_playerOneObject != null && _playerOneObject.TryGetComponent(out PlayerMove playerOne))
+        {
+            playerOne.SetStageIntroFrozen(frozen);
+        }
+
+        if (_playerTwoObject != null && _playerTwoObject.TryGetComponent(out PlayerMove playerTwo))
+        {
+            playerTwo.SetStageIntroFrozen(frozen);
+        }
+    }
+
+    /// <summary>
     ///     復活待ち時間のあと、現在のステージの地点へ戻す
     /// </summary>
     private IEnumerator RespawnAfterDelay(int playerIndex)
@@ -363,6 +390,7 @@ public class GameManager : MonoBehaviour
 
         yield return new WaitForSeconds(Mathf.Max(0f, _respawnDelaySeconds));
 
+        // 復活待ちを解除し、待機中にラウンドが終わっていたらプレイヤーを出さない
         _respawnCoroutines[playerIndex - 1] = null;
         if (IsMatchActive && _timer.IsTimerRunning)
         {
@@ -392,9 +420,7 @@ public class GameManager : MonoBehaviour
         player.SetActive(true);
         if (player.TryGetComponent(out Rigidbody body))
         {
-            body.position = player.transform.position;
-            body.linearVelocity = Vector3.zero;
-            body.angularVelocity = Vector3.zero;
+            PlayerDeath.ResetBodyForSpawn(body, player.transform.position);
         }
 
         if (isRespawn && player.TryGetComponent(out PlayerDeath playerDeath))
@@ -429,6 +455,7 @@ public class GameManager : MonoBehaviour
         }
 
         SetPlayerInputEnabled(false);
+        SetPlayersStageIntroFrozen(false);
         if (_timer != null)
         {
             _timer.StopTimer();

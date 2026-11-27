@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 8397266870311460708}
   - component: {fileID: 5544179512472492435}
   - component: {fileID: 6337468000191637812}
+  - component: {fileID: 7419283746501928374}
   m_Layer: 0
   m_Name: ExplosiveFallObject
   m_TagString: Untagged
@@ -156,4 +157,19 @@ MonoBehaviour:
   _radius: 3
   _maxKnockbackSpeed: 10
   _stunSeconds: 0.4
-  _burstMaterial: {fileID: 2100000, guid: fb89fd200aa9de24a830e454219c728c, type: 2}
+  _burstMaterial: {fileID: 0}
+--- !u!114 &7419283746501928374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8392656636330817161}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d5dd8101d1f4302a1d097b1cc827cbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Scorpion.Effects.ExplosionEffect
+  _boomMaterial: {fileID: 2100000, guid: 4b46ed586e9e421c9351fc8d13aa42b9, type: 2}
+  _lineMaterial: {fileID: 2100000, guid: 8c0034cecf7c4f67a93c19722ae35283, type: 2}
+  _hideOriginalRing: 0

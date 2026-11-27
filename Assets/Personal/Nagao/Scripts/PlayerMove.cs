@@ -58,6 +58,7 @@ public class PlayerMove : MonoBehaviour
     private Coroutine _stunRoutine;
     private float _lastGroundedTime = float.NegativeInfinity;
     private float _ignoreGroundUntil;
+    private RigidbodyConstraints? _constraintsBeforeIntro;
 
     private const float JUMP_GRACE_SECONDS = 0.08f;
 
@@ -122,6 +123,45 @@ public class PlayerMove : MonoBehaviour
         return () => _jumpPowerMultipliers.Remove(effect);
     }
 
+    /// <summary>
+    ///     配置し直す前の接地・ジャンプ入力・被弾硬直を解除する
+    /// </summary>
+    internal void ResetMovementState()
+    {
+        _groundContacts.Clear();
+        _lastGroundedTime = float.NegativeInfinity;
+        _ignoreGroundUntil = 0f;
+        _sideContacts.Clear();
+        _jumpRequested = false;
+        _isJumpButtonPressed = false;
+        _chargeJumpTime = 0f;
+        if (_stunRoutine != null)
+        {
+            StopCoroutine(_stunRoutine);
+            _stunRoutine = null;
+        }
+
+        _isStunned = false;
+    }
+
+    /// <summary>
+    ///     開始演出中は開始地点に留め、終了時に元の物理制約を復元する
+    /// </summary>
+    internal void SetStageIntroFrozen(bool frozen)
+    {
+        if (frozen && !_constraintsBeforeIntro.HasValue)
+        {
+            _constraintsBeforeIntro = _rigidbody.constraints;
+            _rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+        }
+        else if (!frozen && _constraintsBeforeIntro.HasValue)
+        {
+            _rigidbody.constraints = _constraintsBeforeIntro.Value;
+            _constraintsBeforeIntro = null;
+            PlayerDeath.ResetBodyForSpawn(_rigidbody, _rigidbody.position);
+        }
+    }
+
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
@@ -168,6 +208,7 @@ public class PlayerMove : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // 足場がギミックで消えると接触終了通知を受けられないことがあるため、無効な接触を取り除く
         _groundContacts.RemoveWhere(contact => contact == null || !contact.enabled || !contact.gameObject.activeInHierarchy);
         if (IsGrounded)
         {
@@ -186,6 +227,8 @@ public class PlayerMove : MonoBehaviour
             _chargeJumpTime = 0f;
             _groundContacts.Clear();
             _lastGroundedTime = float.NegativeInfinity;
+
+            // 踏み切った直後に残る接触で、空中状態が上書きされるのを防ぐ
             _ignoreGroundUntil = Time.fixedTime + 2f * Time.fixedDeltaTime;
             float multiplier = _jumpPowerMultipliers.Last?.Value ?? 1f;
             _rigidbody.AddForce(Vector3.up * (_jumpPower * multiplier), ForceMode.Impulse);
@@ -201,18 +244,8 @@ public class PlayerMove : MonoBehaviour
 
     private void OnDisable()
     {
-        _groundContacts.Clear();
-        _lastGroundedTime = float.NegativeInfinity;
-        _ignoreGroundUntil = 0f;
-        _sideContacts.Clear();
-        _jumpRequested = false;
-        _isJumpButtonPressed = false;
-        if (_stunRoutine != null)
-        {
-            StopCoroutine(_stunRoutine);
-            _stunRoutine = null;
-            _isStunned = false;
-        }
+        SetStageIntroFrozen(false);
+        ResetMovementState();
     }
 
     private void OnCollisionEnter(Collision collision)
