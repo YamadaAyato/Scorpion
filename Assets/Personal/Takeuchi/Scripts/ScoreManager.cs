@@ -8,6 +8,8 @@ public class ScoreManager : MonoBehaviour
 {
     /// <summary> 得点が変わったプレイヤー番号と更新後の得点を通知する </summary>
     public event Action<int, int> OnScoreChanged;
+    /// <summary> プレイヤー番号と今回獲得したポイントを通知する </summary>
+    public event Action<int, int> OnPointGained;
 
     /// <summary> 現在の得点管理を取得する </summary>
     public static ScoreManager Instance { get; private set; }
@@ -40,11 +42,14 @@ public class ScoreManager : MonoBehaviour
         {
             PlayerTwoScore += points;
             OnScoreChanged?.Invoke(2, PlayerTwoScore);
+            OnPointGained?.Invoke(2, points);
         }
         else
         {
             PlayerOneScore += points;
             OnScoreChanged?.Invoke(1, PlayerOneScore);
+            OnPointGained?.Invoke(1, points);
+
         }
     }
 
