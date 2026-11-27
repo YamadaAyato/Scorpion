@@ -79,6 +79,8 @@ public class GameManager : MonoBehaviour
     private Image __playerTwoWinImage;
     [SerializeField, Tooltip("2Pの敗北2D画像")]
     private Image __playerTwoLoseImage;
+    [SerializeField, Tooltip("リザルトで敗者の画像に添えるラベル")]
+    private GameObject _resultLoseLabel;
     [SerializeField, Tooltip("試合で使用するステージを進行順に並べる")]
     private List<StageDefinition> _stages = new();
     [SerializeField, Tooltip("落下から復活までの待ち時間（秒）")]
@@ -189,11 +191,8 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        UpdateResultImages(0);
         StartMatch();
-        __playerOneLoseImage.enabled=false;
-        __playerOneWinImage.enabled=false;
-        __playerTwoLoseImage.enabled=false;
-        __playerTwoWinImage.enabled=false;
     }
 
     private void OnDisable()
@@ -524,16 +523,33 @@ public class GameManager : MonoBehaviour
         ScoreManager score = ScoreManager.Instance;
         int winner = score.PlayerOneScore == score.PlayerTwoScore ? 0
             : score.PlayerOneScore > score.PlayerTwoScore ? 1 : 2;
+        UpdateResultImages(winner);
         OnMatchFinished?.Invoke(winner);
-        if (winner == 1)
+    }
+
+    /// <summary>
+    ///     勝者と敗者の画像を更新し、引き分け時は両方を隠す
+    /// </summary>
+    private void UpdateResultImages(int winner)
+    {
+        SetResultImageVisible(__playerOneWinImage, winner == 1);
+        SetResultImageVisible(__playerTwoLoseImage, winner == 1);
+        SetResultImageVisible(__playerTwoWinImage, winner == 2);
+        SetResultImageVisible(__playerOneLoseImage, winner == 2);
+        if (_resultLoseLabel != null)
         {
-            __playerOneWinImage.enabled=true;
-            __playerTwoLoseImage.enabled=true;
+            _resultLoseLabel.SetActive(winner != 0);
         }
-        else
+    }
+
+    /// <summary>
+    ///     シーンに設定されているリザルト画像の表示を切り替える
+    /// </summary>
+    private static void SetResultImageVisible(Image image, bool isVisible)
+    {
+        if (image != null)
         {
-            __playerTwoWinImage.enabled = true;
-            __playerOneLoseImage.enabled = true;
+            image.enabled = isVisible;
         }
     }
 }

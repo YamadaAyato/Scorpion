@@ -15,8 +15,6 @@ MonoBehaviour:
   _normalInterval: 5
   _rushInterval: 2
   _normalEntries:
-  - _definition: {fileID: 11400000, guid: 5bdca1bd541e6994f97aa1ada7818b95, type: 2}
-    _weight: 1
   - _definition: {fileID: 11400000, guid: b72477efd5db5b24d873f1a778170a4b, type: 2}
     _weight: 2
   - _definition: {fileID: 11400000, guid: ed43c99f8fc09794985c2b6f26d89595, type: 2}
@@ -30,8 +28,6 @@ MonoBehaviour:
   - _definition: {fileID: 11400000, guid: 6dc493acc6cb4bc1af20eeabe6af7ec0, type: 2}
     _weight: 1
   _rushEntries:
-  - _definition: {fileID: 11400000, guid: 5bdca1bd541e6994f97aa1ada7818b95, type: 2}
-    _weight: 1
   - _definition: {fileID: 11400000, guid: b72477efd5db5b24d873f1a778170a4b, type: 2}
     _weight: 4
   - _definition: {fileID: 11400000, guid: ed43c99f8fc09794985c2b6f26d89595, type: 2}
@@ -41,6 +37,7 @@ MonoBehaviour:
   - _definition: {fileID: 11400000, guid: b3e81dd208e733046a1942194b4b16e6, type: 2}
     _weight: 2
   _rushStartGimmicks:
+  - {fileID: 11400000, guid: e7f0c6d8e457fe94aae9c663a26bbb20, type: 2}
   - {fileID: 11400000, guid: ed43c99f8fc09794985c2b6f26d89595, type: 2}
   - {fileID: 11400000, guid: 8b8aa45ec5a26624d8525c38742aa944, type: 2}
   - {fileID: 11400000, guid: b72477efd5db5b24d873f1a778170a4b, type: 2}
