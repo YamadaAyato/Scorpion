@@ -530,10 +530,15 @@ public class GameManager : MonoBehaviour
             __playerOneWinImage.enabled=true;
             __playerTwoLoseImage.enabled=true;
         }
-        else
+        if (winner == 2) 
         {
             __playerTwoWinImage.enabled = true;
             __playerOneLoseImage.enabled = true;
+        }
+        else
+        {
+            __playerOneLoseImage.enabled=true ;
+            __playerTwoLoseImage.enabled=true ;
         }
     }
 }
