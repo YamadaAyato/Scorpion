@@ -23,5 +23,5 @@ MonoBehaviour:
     - rid: 4673120731219886361
       type: {class: BridgeCollapseAction, ns: Scorpion.Gimmicks, asm: Assembly-CSharp}
       data:
-        _boardCount: 4
+        _boardCount: 2
         _intervalSeconds: 0.55
