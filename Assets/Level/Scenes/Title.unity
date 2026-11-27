@@ -885,7 +885,28 @@ MonoBehaviour:
   _defaultMasterVolume: 1
   _defaultBgmVolume: 1
   _defaultSeVolume: 1
-  _bgmList: []
+  _bgmList:
+  - _name: music_title
+    _clip: {fileID: 8300000, guid: 57f88a1b5e32cb94697f0b7eb40a58aa, type: 3}
+    _volume: 1
+  - _name: music_stage1_normal
+    _clip: {fileID: 8300000, guid: c83c3be8a2d252a43813f19c266c85e9, type: 3}
+    _volume: 1
+  - _name: music_stage1_fast
+    _clip: {fileID: 8300000, guid: aacd4ba7b1abd2644abddca2e6e81cd7, type: 3}
+    _volume: 1
+  - _name: music_stage2_normal
+    _clip: {fileID: 8300000, guid: 421e3d77bbd65544eb88dac10c95159e, type: 3}
+    _volume: 1
+  - _name: music_stage2_fast
+    _clip: {fileID: 8300000, guid: e751965c128a26a418144ed1c4b2e4a6, type: 3}
+    _volume: 1
+  - _name: music_stage3_normal
+    _clip: {fileID: 8300000, guid: 8199e1047bf4b7041a8cbf580709bbfa, type: 3}
+    _volume: 1
+  - _name: music_stage3_fast
+    _clip: {fileID: 8300000, guid: 43683e4b914993d4c868aa405ef5bd2d, type: 3}
+    _volume: 1
   _seList: []
 --- !u!82 &353420031
 AudioSource:
