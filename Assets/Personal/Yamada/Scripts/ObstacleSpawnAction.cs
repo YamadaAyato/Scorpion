@@ -86,7 +86,7 @@ namespace Scorpion.Gimmicks
             Vector2 velocity = _initialVelocity + Vector2.right * (direction * _diagonalSpeed);
             position = GetOffscreenSpawnPosition(camera, position, velocity);
             Rigidbody obstacle = UnityEngine.Object.Instantiate(
-                _prefab, position, _prefab.rotation);
+                _prefab, position, _prefab.transform.rotation);
             if (!obstacle.TryGetComponent(out ExplosiveObstacle _) && !obstacle.TryGetComponent(out AttackableObstacle _))
             {
                 obstacle.gameObject.AddComponent<AttackableObstacle>();

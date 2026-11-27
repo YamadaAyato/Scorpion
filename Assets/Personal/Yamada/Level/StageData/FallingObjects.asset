@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35ea5a879af06324bbafab1024c88363, type: 3}
   m_Name: FallingObjects
   m_EditorClassIdentifier: Assembly-CSharp::Scorpion.Gimmicks.GimmickDefinition
-  _displayName: "隕石襲来"
-  _description: "上空や斜めから隕石が飛来する。攻撃で弾き返せる"
+  _displayName: "\u9695\u77F3\u8972\u6765"
+  _description: "\u4E0A\u7A7A\u3084\u659C\u3081\u304B\u3089\u9695\u77F3\u304C\u98DB\u6765\u3059\u308B\u3002\u653B\u6483\u3067\u5F3E\u304D\u8FD4\u305B\u308B"
   _duration: 4
   _action:
     rid: 4673120731219886358
@@ -23,9 +23,10 @@ MonoBehaviour:
     - rid: 4673120731219886358
       type: {class: ObstacleSpawnAction, ns: Scorpion.Gimmicks, asm: Assembly-CSharp}
       data:
-        _prefab: {fileID: 2874729764366791628, guid: 4452c82df4a6ae94eba5ae3ece4eb361, type: 3}
+        _prefab: {fileID: 5534029826903702566, guid: 3c5527c226b89954ca6d769337385ca1, type: 3}
         _spawnOffset: {x: 0, y: 0}
         _initialVelocity: {x: 0, y: -2}
         _diagonalSpawnOffset: 4
         _diagonalSpeed: 5
         _maxSpawnCount: 2
+        _maxSpeed: 18
