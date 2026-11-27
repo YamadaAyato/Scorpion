@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Scorpion.Gimmicks;
+using Scorpion.UI;
 using UnityEngine;
 
 /// <summary>
@@ -83,6 +84,7 @@ public class GameManager : MonoBehaviour
     private TimeManager _timer;
     private Coroutine _stageCueCoroutine;
     private StageLayout _stageInstance;
+    private MatchBackground _matchBackground;
 
     /// <summary>
     ///     指定されたプレイヤーが復活待ちかどうかを取得する
@@ -265,6 +267,20 @@ public class GameManager : MonoBehaviour
                 PlayerMove playerTwo = _playerTwoObject != null ? _playerTwoObject.GetComponent<PlayerMove>() : null;
                 targets.SetPlayers(playerOne, playerTwo);
             }
+        }
+
+        if (_matchBackground == null)
+        {
+            Camera camera = Camera.main;
+            if (camera != null)
+            {
+                _matchBackground = camera.GetComponentInChildren<MatchBackground>();
+            }
+        }
+
+        if (_matchBackground != null)
+        {
+            _matchBackground.SetTexture(_stageInstance != null ? _stageInstance.BackgroundTexture : null);
         }
 
         PlacePlayer(1, isRespawn: false);
