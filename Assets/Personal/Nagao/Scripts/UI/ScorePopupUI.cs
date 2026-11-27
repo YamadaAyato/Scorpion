@@ -1,68 +1,74 @@
-using UnityEngine;
 using DG.Tweening;
+using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+///     å¾—ç‚¹æ™‚ã«ç²å¾—ãƒã‚¤ãƒ³ãƒˆã‚’è¡¨ç¤ºã—ã€ä¸Šã¸ç§»å‹•ã—ãªãŒã‚‰ãƒ•ã‚§ãƒ¼ãƒ‰ã‚¢ã‚¦ãƒˆ
+/// </summary>
 public class ScorePopupUI : MonoBehaviour
 {
-    [Header("ƒvƒŒƒCƒ„[İ’è")]
-    [SerializeField] int myPlayerIndex;
+    [SerializeField, Tooltip("è¡¨ç¤ºã‚’æ‹…å½“ã™ã‚‹ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ç•ªå·")]
+    private int myPlayerIndex;
+    [SerializeField, Tooltip("ãƒ•ã‚§ãƒ¼ãƒ‰ã‚’å§‹ã‚ã‚‹ã¾ã§ã®è¡¨ç¤ºæ™‚é–“ï¼ˆç§’ï¼‰")]
+    private float showDuration = 1f;
+    [SerializeField, Tooltip("ãƒ•ã‚§ãƒ¼ãƒ‰ã‚¢ã‚¦ãƒˆã«ã‹ã‹ã‚‹æ™‚é–“ï¼ˆç§’ï¼‰")]
+    private float fadeDuration = 0.5f;
+    [SerializeField, Tooltip("è¡¨ç¤ºã‚’ä¸Šã«å‹•ã‹ã™è·é›¢")]
+    private float moveDistance = 30f;
 
-
-    [Header("ƒAƒjƒ[ƒVƒ‡ƒ“")]
-    [SerializeField] float showDuration = 1f;
-    [SerializeField] float fadeDuration = 0.5f;
-    [SerializeField] float moveDistance = 30f;
-
-    private RectTransform rectTransform;
-    private Vector2 startPosition;
-    private Text pointText;
+    private RectTransform _rectTransform;
+    private Vector2 _startPosition;
+    private Text _pointText;
+    private ScoreManager _scoreManager;
 
     private void Awake()
     {
-        pointText = GetComponent<Text>();
-        rectTransform = pointText.GetComponent<RectTransform>();
-        startPosition = rectTransform.anchoredPosition;
+        _pointText = GetComponent<Text>();
+        _rectTransform = _pointText.rectTransform;
+        _startPosition = _rectTransform.anchoredPosition;
     }
 
     private void Start()
     {
-        if (ScoreManager.Instance == null) return;
-
-        ScoreManager.Instance.OnPointGained += ShowPoint;
+        _scoreManager = ScoreManager.Instance;
+        if (_scoreManager != null)
+        {
+            _scoreManager.OnPointGained += HandlePointGained;
+        }
     }
+
     private void OnDestroy()
     {
-        if (ScoreManager.Instance == null) return;
-
-        ScoreManager.Instance.OnPointGained -= ShowPoint;
+        if (_scoreManager != null)
+        {
+            _scoreManager.OnPointGained -= HandlePointGained;
+        }
     }
 
-    // “¾“_‚µ‚½ƒvƒŒƒCƒ„[‚ÆŠl“¾ƒ|ƒCƒ“ƒg‚ğó‚¯æ‚é
-    void ShowPoint(int playerIndex, int points)
+    /// <summary>
+    ///     æ‹…å½“ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«åŠ ç®—ã•ã‚ŒãŸå¾—ç‚¹ã¨ã€é©ç”¨ã•ã‚ŒãŸå€ç‡ã‚’è¡¨ç¤º
+    /// </summary>
+    private void HandlePointGained(int playerIndex, int points, int multiplier)
     {
-        if (playerIndex != myPlayerIndex) return;
+        if (playerIndex != myPlayerIndex)
+        {
+            return;
+        }
 
-        pointText.text = $"+{points} Point";
+        _pointText.text = multiplier > 1 ? $"+{points} Point (Ã—{multiplier})" : $"+{points} Point";
 
-        // ‘O‰ñ‚ÌƒAƒjƒ[ƒVƒ‡ƒ“‚ğ’â~
-        pointText.DOKill();
-        rectTransform.DOKill();
-
-        // ‰Šúó‘Ô‚É–ß‚·
-        Color color=pointText.color;
+        // é€£ç¶šã§å¾—ç‚¹ã—ãŸã¨ãã‚‚è¡¨ç¤ºä½ç½®ã¨é€æ˜åº¦ã‚’åˆæœŸçŠ¶æ…‹ã‹ã‚‰ã‚„ã‚Šç›´ã™
+        _pointText.DOKill();
+        _rectTransform.DOKill();
+        Color color = _pointText.color;
         color.a = 1f;
-        pointText.color=color;
-        rectTransform.anchoredPosition = startPosition;
+        _pointText.color = color;
+        _rectTransform.anchoredPosition = _startPosition;
 
-        // ã‚ÉˆÚ“®
-        rectTransform.DOAnchorPosY(
-            startPosition.y + moveDistance,
-            showDuration + fadeDuration
-        );
-
-        // ƒtƒF[ƒhƒAƒEƒg
-        pointText.DOFade(0f, fadeDuration)
-            .SetDelay(showDuration);
-        Debug.Log(points);
+        _rectTransform.DOAnchorPosY(_startPosition.y + moveDistance, showDuration + fadeDuration)
+            .SetLink(gameObject);
+        _pointText.DOFade(0f, fadeDuration)
+            .SetDelay(showDuration)
+            .SetLink(gameObject);
     }
 }

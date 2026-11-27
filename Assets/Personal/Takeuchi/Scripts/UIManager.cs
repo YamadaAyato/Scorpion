@@ -50,6 +50,7 @@ public class UIManager : MonoBehaviour
     private bool _showPlayerLabels;
     private GimmickManager _gimmickManager;
     private GimmickNotice _gimmickNotice;
+    private GimmickNotice _scoreMultiplierNotice;
     private Tween _timerPulse;
     private Tween _rushBlink;
     private Vector3 _timerBaseScale;
@@ -126,6 +127,7 @@ public class UIManager : MonoBehaviour
                 _playerTwoIndicator = new PlayerIndicator(canvas, _stageCueText.font, _gameManager.PlayerTwoObject,
                     "Player2", new Color(0.36f, 0.74f, 1f));
                 _gimmickNotice = new GimmickNotice(canvas, _stageCueText.font);
+                _scoreMultiplierNotice = new GimmickNotice(canvas, _stageCueText.font, emphasize: true);
             }
         }
     }
@@ -161,6 +163,7 @@ public class UIManager : MonoBehaviour
     private void LateUpdate()
     {
         _gimmickNotice?.HideWhenExpired();
+        _scoreMultiplierNotice?.HideWhenExpired();
         if (_playerOneIndicator == null)
         {
             return;
@@ -182,6 +185,7 @@ public class UIManager : MonoBehaviour
     {
         ResetRushEffects();
         _gimmickNotice?.Clear();
+        _scoreMultiplierNotice?.Clear();
         _playerOneIndicator?.Hide();
         _playerTwoIndicator?.Hide();
         UnsubscribeEvents();
@@ -221,6 +225,7 @@ public class UIManager : MonoBehaviour
     {
         ResetRushEffects();
         _gimmickNotice?.Clear();
+        _scoreMultiplierNotice?.Clear();
         if (_stageText != null)
         {
             _stageText.text = string.IsNullOrEmpty(stage.StageName)
@@ -280,6 +285,7 @@ public class UIManager : MonoBehaviour
         {
             ResetRushEffects();
             _gimmickNotice?.Clear();
+            _scoreMultiplierNotice?.Clear();
         }
 
         bool isIntro = _gameManager != null && _gameManager.IsMatchActive &&
@@ -307,6 +313,12 @@ public class UIManager : MonoBehaviour
     /// </summary>
     private void HandleGimmickStarted(int activationId, GimmickDefinition definition)
     {
+        if (definition.IsScoreMultiplier)
+        {
+            _scoreMultiplierNotice?.Show($"スコア倍率 ×{_gimmickManager.ScoreMultiplier}！");
+            return;
+        }
+
         _gimmickNotice?.Show(definition.DisplayName);
     }
 

@@ -8,8 +8,8 @@ public class ScoreManager : MonoBehaviour
 {
     /// <summary> 得点が変わったプレイヤー番号と更新後の得点を通知する </summary>
     public event Action<int, int> OnScoreChanged;
-    /// <summary> プレイヤー番号と今回獲得したポイントを通知する </summary>
-    public event Action<int, int> OnPointGained;
+    /// <summary> プレイヤー番号、獲得ポイント、適用した倍率を通知する </summary>
+    public event Action<int, int, int> OnPointGained;
 
     /// <summary> 現在の得点管理を取得する </summary>
     public static ScoreManager Instance { get; private set; }
@@ -32,7 +32,8 @@ public class ScoreManager : MonoBehaviour
             return;
         }
 
-        int points = Mathf.Max(1, _pointPerFall) * game.ScoreMultiplier;
+        int multiplier = game.ScoreMultiplier;
+        int points = Mathf.Max(1, _pointPerFall) * multiplier;
         if (!game.TryStartRespawn(fallenPlayerIndex))
         {
             return;
@@ -42,13 +43,13 @@ public class ScoreManager : MonoBehaviour
         {
             PlayerTwoScore += points;
             OnScoreChanged?.Invoke(2, PlayerTwoScore);
-            OnPointGained?.Invoke(2, points);
+            OnPointGained?.Invoke(2, points, multiplier);
         }
         else
         {
             PlayerOneScore += points;
             OnScoreChanged?.Invoke(1, PlayerOneScore);
-            OnPointGained?.Invoke(1, points);
+            OnPointGained?.Invoke(1, points, multiplier);
 
         }
     }

@@ -93,8 +93,8 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &3973050533727807968
-BoxCollider:
+--- !u!135 &3973050533727807968
+SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -112,7 +112,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.31567648, y: 0.31567648, z: 0.28960907}
+  m_Radius: 0.14380817
   m_Center: {x: 0, y: 0, z: -0.013033703}
 --- !u!54 &5534029826903702566
 Rigidbody:

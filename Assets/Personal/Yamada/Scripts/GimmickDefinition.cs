@@ -17,6 +17,7 @@ namespace Scorpion.Gimmicks
         public float Duration => Mathf.Max(0.01f, _duration);
 
         internal bool HasAction => _action != null;
+        internal bool IsScoreMultiplier => _action is ScoreMultiplierAction;
 
         [SerializeField, Tooltip("通知に表示するギミック名")]
         private string _displayName;
