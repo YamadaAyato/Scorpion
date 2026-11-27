@@ -306,6 +306,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: SeesawSample
       objectReference: {fileID: 0}
+    - target: {fileID: 4303211290811335562, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4303211290811335562, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4303211290811335562, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4303211290811335562, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4303211290811335562, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 180
+      objectReference: {fileID: 0}
     - target: {fileID: 5348904662367506667, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
       propertyPath: m_Enabled
       value: 0

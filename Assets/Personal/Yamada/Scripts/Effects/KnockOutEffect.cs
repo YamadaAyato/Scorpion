@@ -220,6 +220,8 @@ namespace Scorpion.Effects
         [Header("ヒットストップ・スロー")]
         [SerializeField, Tooltip("撃破の瞬間にゲームの時間を止める・遅くするか")]
         private bool _useTimeScale = true;
+        [SerializeField, Min(0f), Tooltip("通常攻撃が命中した瞬間に止める時間（実時間の秒数）。0で無効")]
+        private float _attackHitStopSeconds = 0.06f;
         [SerializeField, Min(0f), Tooltip("ほぼ止める時間（実時間の秒数）")]
         private float _hitStopSeconds = 0.08f;
         [SerializeField, Range(0f, 1f), Tooltip("ほぼ止めている間の時間の速さ")]
@@ -256,6 +258,7 @@ namespace Scorpion.Effects
         private Color _currentFlashColor;
         private float _flashElapsed = -1f;
         private float _timeElapsed = -1f;
+        private double _attackHitStopEndsAt;
         private float _appliedTimeScale = 1f;
         private float _baseTimeScale = 1f;
         private float _shakeElapsed = -1f;
@@ -373,11 +376,13 @@ namespace Scorpion.Effects
 
         private void OnEnable()
         {
+            Hitbox.OnHitConfirmed += HandleAttackHit;
             TrySubscribe();
         }
 
         private void OnDisable()
         {
+            Hitbox.OnHitConfirmed -= HandleAttackHit;
             Unsubscribe();
             RestoreTimeScale();
             RemoveShakeOffset();
@@ -840,6 +845,22 @@ namespace Scorpion.Effects
 
         // ───────── ヒットストップ・スロー ─────────
 
+        /// <summary>
+        ///     命中時に短く停止する。撃破演出や外部のポーズが動作中ならそちらを優先する
+        /// </summary>
+        private void HandleAttackHit()
+        {
+            if (_attackHitStopSeconds <= 0f || _timeElapsed >= 0f || Time.timeScale <= 0f)
+            {
+                return;
+            }
+
+            _baseTimeScale = Time.timeScale;
+            _timeElapsed = 0f;
+            _attackHitStopEndsAt = Time.realtimeSinceStartupAsDouble + _attackHitStopSeconds;
+            ApplyTimeScale(0f);
+        }
+
         private void StartTimeScale()
         {
             if (!_useTimeScale || (_hitStopSeconds <= 0f && _slowSeconds <= 0f))
@@ -853,6 +874,7 @@ namespace Scorpion.Effects
                 _baseTimeScale = Time.timeScale;
             }
 
+            _attackHitStopEndsAt = 0d;
             _timeElapsed = 0f;
             ApplyTimeScale(_hitStopSeconds > 0f ? _hitStopTimeScale : _slowTimeScale);
         }
@@ -868,6 +890,18 @@ namespace Scorpion.Effects
             if (!Mathf.Approximately(Time.timeScale, _appliedTimeScale))
             {
                 _timeElapsed = -1f;
+                _attackHitStopEndsAt = 0d;
+                return;
+            }
+
+            // 通常攻撃はスローへ移らず、停止前の速度に直接戻す
+            if (_attackHitStopEndsAt > 0d)
+            {
+                if (Time.realtimeSinceStartupAsDouble >= _attackHitStopEndsAt)
+                {
+                    RestoreTimeScale();
+                }
+
                 return;
             }
 
@@ -904,6 +938,7 @@ namespace Scorpion.Effects
             }
 
             _timeElapsed = -1f;
+            _attackHitStopEndsAt = 0d;
         }
 
         // ───────── カメラの揺れ ─────────
