@@ -23,6 +23,10 @@ MonoBehaviour:
     _weight: 1
   - _definition: {fileID: 11400000, guid: d967a7dc5cab7de4182cd59c8f3e43f5, type: 2}
     _weight: 1
+  - _definition: {fileID: 11400000, guid: 6dc493acc6cb4bc1af20eeabe6af7ec0, type: 2}
+    _weight: 1
+  - _definition: {fileID: 11400000, guid: 2b37a527ddbc4fdeb38ed2715daf51df, type: 2}
+    _weight: 1
   _rushEntries:
   - _definition: {fileID: 11400000, guid: 5bdca1bd541e6994f97aa1ada7818b95, type: 2}
     _weight: 1
