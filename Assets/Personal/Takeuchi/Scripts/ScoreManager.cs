@@ -1,4 +1,5 @@
 using System;
+using Scorpion.Audio;
 using UnityEngine;
 
 /// <summary>
@@ -39,6 +40,7 @@ public class ScoreManager : MonoBehaviour
             return;
         }
 
+        AudioManager.Instance?.PlayRandomSE("se_death_");
         if (fallenPlayerIndex == 1)
         {
             PlayerTwoScore += points;

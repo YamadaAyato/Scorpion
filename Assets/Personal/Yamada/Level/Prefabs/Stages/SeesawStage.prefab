@@ -179,7 +179,7 @@ MonoBehaviour:
   _playerTwoSpawn: {fileID: 7279352155240321439}
   _playerOneRespawn: {fileID: 7394608223520970341}
   _playerTwoRespawn: {fileID: 1835700237790760855}
-  _backgroundTexture: {fileID: 0}
+  _backgroundTexture: {fileID: 2800000, guid: 88fe6f7d8134dae449020ea38d02a22e, type: 3}
 --- !u!114 &4735001675249539943
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -399,7 +399,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4303211290811335562, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4303211290811335562, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
       propertyPath: m_LocalRotation.x
@@ -407,7 +407,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4303211290811335562, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4303211290811335562, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
       propertyPath: m_LocalRotation.z
@@ -415,7 +415,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4303211290811335562, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 180
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5348904662367506667, guid: c04beebece028c447977ccdbd2d717f8, type: 3}
       propertyPath: m_Enabled

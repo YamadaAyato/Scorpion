@@ -221,7 +221,7 @@ namespace Scorpion.Effects
         [SerializeField, Tooltip("撃破の瞬間にゲームの時間を止める・遅くするか")]
         private bool _useTimeScale = true;
         [SerializeField, Min(0f), Tooltip("通常攻撃が命中した瞬間に止める時間（実時間の秒数）。0で無効")]
-        private float _attackHitStopSeconds = 0.06f;
+        private float _attackHitStopSeconds = 0.1f;
         [SerializeField, Min(0f), Tooltip("ほぼ止める時間（実時間の秒数）")]
         private float _hitStopSeconds = 0.08f;
         [SerializeField, Range(0f, 1f), Tooltip("ほぼ止めている間の時間の速さ")]
@@ -850,7 +850,7 @@ namespace Scorpion.Effects
         /// </summary>
         private void HandleAttackHit()
         {
-            if (_attackHitStopSeconds <= 0f || _timeElapsed >= 0f || Time.timeScale <= 0f)
+            if (!_useTimeScale || _attackHitStopSeconds <= 0f || _timeElapsed >= 0f || Time.timeScale <= 0f)
             {
                 return;
             }

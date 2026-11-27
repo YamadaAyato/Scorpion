@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Scorpion.Audio;
 using UnityEngine;
 
 /// <summary>
@@ -37,6 +38,7 @@ public class PlayerAttack : MonoBehaviour
         }
 
         _attackRoutine = StartCoroutine(RunAttack());
+        AudioManager.Instance?.PlayRandomSE("se_attack_");
         OnAttackStarted?.Invoke();
     }
 

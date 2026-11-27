@@ -793,8 +793,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 22
+    m_Font: {fileID: 12800000, guid: e3265ab4bf004d28a9537516768c1c75, type: 3}
+    m_FontSize: 24
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 10
@@ -916,9 +916,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f37b45d2c16ff0346bc0c83562272209, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scorpion.Audio.AudioManager
-  _defaultMasterVolume: 1
-  _defaultBgmVolume: 1
-  _defaultSeVolume: 1
+  _defaultMasterVolume: 0.25
+  _defaultBgmVolume: 0.25
+  _defaultSeVolume: 0.25
   _bgmList:
   - _name: music_title
     _clip: {fileID: 8300000, guid: 57f88a1b5e32cb94697f0b7eb40a58aa, type: 3}
@@ -983,6 +983,9 @@ MonoBehaviour:
     _volume: 1
   - _name: se_timeup
     _clip: {fileID: 8300000, guid: 1bd150dc633793d4ab716c5e65ba5fbf, type: 3}
+    _volume: 1
+  - _name: se_wind
+    _clip: {fileID: 8300000, guid: 16c69afb6379b1642be2024aa28a711f, type: 3}
     _volume: 1
 --- !u!82 &353420031
 AudioSource:
@@ -1658,7 +1661,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -255, y: 0.000061035156}
+  m_AnchoredPosition: {x: -255, y: 0.00012207031}
   m_SizeDelta: {x: 1578, y: 1080}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &602073887

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Scorpion.Audio;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -103,6 +104,7 @@ public class PlayerMove : MonoBehaviour
         }
 
         _stunRoutine = StartCoroutine(StunCoroutine(duration));
+        AudioManager.Instance?.PlayRandomSE("se_damage_");
     }
 
     /// <summary>
@@ -232,6 +234,7 @@ public class PlayerMove : MonoBehaviour
             _ignoreGroundUntil = Time.fixedTime + 2f * Time.fixedDeltaTime;
             float multiplier = _jumpPowerMultipliers.Last?.Value ?? 1f;
             _rigidbody.AddForce(Vector3.up * (_jumpPower * multiplier), ForceMode.Impulse);
+            AudioManager.Instance?.PlayRandomSE("se_jump_up_");
             OnJumpStarted?.Invoke();
         }
         else

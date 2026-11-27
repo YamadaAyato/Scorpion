@@ -1,0 +1,215 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &353420029
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 353420032}
+  - component: {fileID: 353420031}
+  - component: {fileID: 353420030}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &353420030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 353420029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f37b45d2c16ff0346bc0c83562272209, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scorpion.Audio.AudioManager
+  _defaultMasterVolume: 0.25
+  _defaultBgmVolume: 0.25
+  _defaultSeVolume: 0.25
+  _bgmList:
+  - _name: music_title
+    _clip: {fileID: 8300000, guid: 57f88a1b5e32cb94697f0b7eb40a58aa, type: 3}
+    _volume: 1
+  - _name: music_stage1_normal
+    _clip: {fileID: 8300000, guid: c83c3be8a2d252a43813f19c266c85e9, type: 3}
+    _volume: 1
+  - _name: music_stage1_fast
+    _clip: {fileID: 8300000, guid: aacd4ba7b1abd2644abddca2e6e81cd7, type: 3}
+    _volume: 1
+  - _name: music_stage2_normal
+    _clip: {fileID: 8300000, guid: 421e3d77bbd65544eb88dac10c95159e, type: 3}
+    _volume: 1
+  - _name: music_stage2_fast
+    _clip: {fileID: 8300000, guid: e751965c128a26a418144ed1c4b2e4a6, type: 3}
+    _volume: 1
+  - _name: music_stage3_normal
+    _clip: {fileID: 8300000, guid: 8199e1047bf4b7041a8cbf580709bbfa, type: 3}
+    _volume: 1
+  - _name: music_stage3_fast
+    _clip: {fileID: 8300000, guid: 43683e4b914993d4c868aa405ef5bd2d, type: 3}
+    _volume: 1
+  _seList:
+  - _name: se_attack_01
+    _clip: {fileID: 8300000, guid: acfde296948b5554b8df7b2fa1980bb5, type: 3}
+    _volume: 1
+  - _name: se_attack_02
+    _clip: {fileID: 8300000, guid: 8c9e87f0b7e9f924eb1af8849d8a6748, type: 3}
+    _volume: 1
+  - _name: se_attack_03
+    _clip: {fileID: 8300000, guid: 7c5d16745f4f37b4990ab4b5d39407db, type: 3}
+    _volume: 1
+  - _name: se_botton_01
+    _clip: {fileID: 8300000, guid: bd16c9ca1eb1a54469c9cce67704e9d8, type: 3}
+    _volume: 1
+  - _name: se_botton_02
+    _clip: {fileID: 8300000, guid: b68d564dbb36b674f975c14a2424039a, type: 3}
+    _volume: 1
+  - _name: se_count321
+    _clip: {fileID: 8300000, guid: 06dd45db75e315440a07ebddb6b00739, type: 3}
+    _volume: 1
+  - _name: se_damage_01
+    _clip: {fileID: 8300000, guid: 5d9233dd5a3c73d49a9a2e7c7644752b, type: 3}
+    _volume: 1
+  - _name: se_damage_02
+    _clip: {fileID: 8300000, guid: 1f4dbf69834f62d4f93974f394e9a606, type: 3}
+    _volume: 1
+  - _name: se_death_01
+    _clip: {fileID: 8300000, guid: 07e66e961cf9a544f9c0e57fa531b2b3, type: 3}
+    _volume: 1
+  - _name: se_death_02
+    _clip: {fileID: 8300000, guid: a87b894a0843fa142b3fd87a6ccde2ab, type: 3}
+    _volume: 1
+  - _name: se_jump_up_01
+    _clip: {fileID: 8300000, guid: b7a22b1c69991e346bf159ed5a285030, type: 3}
+    _volume: 1
+  - _name: se_jump_up_02
+    _clip: {fileID: 8300000, guid: d17bd853b091af1478af55b8babe7035, type: 3}
+    _volume: 1
+  - _name: se_jump_up_03
+    _clip: {fileID: 8300000, guid: beb1e3d5007057c49b5f0ecb2880119f, type: 3}
+    _volume: 1
+  - _name: se_timeup
+    _clip: {fileID: 8300000, guid: 1bd150dc633793d4ab716c5e65ba5fbf, type: 3}
+    _volume: 1
+  - _name: se_wind
+    _clip: {fileID: 8300000, guid: 16c69afb6379b1642be2024aa28a711f, type: 3}
+    _volume: 1
+--- !u!82 &353420031
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 353420029}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!4 &353420032
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 353420029}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

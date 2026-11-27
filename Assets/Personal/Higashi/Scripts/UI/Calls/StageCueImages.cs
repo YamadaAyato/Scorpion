@@ -11,6 +11,7 @@ using UnityEngine.UI;
 /// ・それ以外の表示（空など）：文字を元に戻す
 /// 文字は消さずに Text の表示だけを切り替えるので、GameManager・UIManager の中身は変えない。
 /// </summary>
+[DefaultExecutionOrder(-50)]
 public class StageCueImages : MonoBehaviour
 {
     [Tooltip("UIManager が合図を出している文字（MatchHud/StageCue）。画像を出している間だけ隠す")]

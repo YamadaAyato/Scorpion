@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Scorpion.Audio
 {
@@ -64,6 +65,22 @@ namespace Scorpion.Audio
         private const string SE_VOLUME_KEY = "Scorpion.Audio.Se";
 
         /// <summary>
+        ///     試合シーンから直接再生した場合も登録済みの音源を使えるようにする
+        /// </summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void InitializeMatchAudio()
+        {
+            if (Instance == null && SceneManager.GetActiveScene().name == "InGame")
+            {
+                GameObject prefab = Resources.Load<GameObject>("Audio/GameAudioManager");
+                if (prefab != null)
+                {
+                    Instantiate(prefab);
+                }
+            }
+        }
+
+        /// <summary>
         ///     全体音量を変更する
         /// </summary>
         public void SetMasterVolume(float volume)
@@ -114,20 +131,44 @@ namespace Scorpion.Audio
         public void PlaySE(string name)
         {
             SoundData sound = FindSound(_seList, name);
-            if (sound == null)
+            if (sound != null)
+            {
+                PlaySoundEffect(sound);
+            }
+        }
+
+        /// <summary>
+        ///     指定した接頭辞で登録された効果音から等確率で1つ再生する
+        /// </summary>
+        public void PlayRandomSE(string namePrefix)
+        {
+            if (string.IsNullOrEmpty(namePrefix))
             {
                 return;
             }
 
-            var player = new GameObject("SEPlayer");
-            player.transform.SetParent(transform, false);
-            AudioSource source = player.AddComponent<AudioSource>();
-            source.playOnAwake = false;
-            source.spatialBlend = 0f;
-            source.clip = sound.Clip;
-            source.volume = sound.Volume * SeVolume;
-            _activeSe.Add(new SePlayback(source, sound.Volume));
-            source.Play();
+            SoundData selected = null;
+            int candidateCount = 0;
+            foreach (SoundData sound in _seList)
+            {
+                if (sound?.Clip == null || sound.Name == null ||
+                    !sound.Name.StartsWith(namePrefix, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                // 候補を追加するたびに 1 / 候補数の確率で入れ替え、配列を作らず均等に選ぶ
+                candidateCount++;
+                if (UnityEngine.Random.Range(0, candidateCount) == 0)
+                {
+                    selected = sound;
+                }
+            }
+
+            if (selected != null)
+            {
+                PlaySoundEffect(selected);
+            }
         }
 
         /// <summary>
@@ -207,6 +248,15 @@ namespace Scorpion.Audio
             BgmVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(BGM_VOLUME_KEY, _defaultBgmVolume));
             SeVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(SE_VOLUME_KEY, _defaultSeVolume));
             AudioListener.volume = MasterVolume;
+            SceneManager.sceneLoaded += HandleSceneLoaded;
+        }
+
+        private void Start()
+        {
+            if (Instance == this)
+            {
+                HandleSceneLoaded(SceneManager.GetActiveScene(), LoadSceneMode.Single);
+            }
         }
 
         private void Update()
@@ -252,11 +302,43 @@ namespace Scorpion.Audio
 
         private void OnDestroy()
         {
+            SceneManager.sceneLoaded -= HandleSceneLoaded;
             CancelFade();
             if (Instance == this)
             {
                 Instance = null;
             }
+        }
+
+        /// <summary>
+        ///     タイトルに戻ったらタイトル曲へ切り替え、試合のカウントダウン前には止める
+        /// </summary>
+        private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            if (scene.name == "Title")
+            {
+                PlayBGM("music_title");
+            }
+            else if (scene.name == "InGame" && _currentBgm?.Name == "music_title")
+            {
+                StopBGM();
+            }
+        }
+
+        /// <summary>
+        ///     曲別の音量とSE音量を使い、効果音を2Dで再生する
+        /// </summary>
+        private void PlaySoundEffect(SoundData sound)
+        {
+            var player = new GameObject("SEPlayer");
+            player.transform.SetParent(transform, false);
+            AudioSource source = player.AddComponent<AudioSource>();
+            source.playOnAwake = false;
+            source.spatialBlend = 0f;
+            source.clip = sound.Clip;
+            source.volume = sound.Volume * SeVolume;
+            _activeSe.Add(new SePlayback(source, sound.Volume));
+            source.Play();
         }
 
         /// <summary>

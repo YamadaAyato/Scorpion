@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Scorpion.Audio;
 using Scorpion.Gimmicks;
 using Scorpion.UI;
 using UnityEngine;
@@ -225,6 +226,7 @@ public class GameManager : MonoBehaviour
     {
         if (IsMatchActive)
         {
+            AudioManager.Instance?.PlayBGM($"music_stage{CurrentStageIndex + 1}_fast");
             OnGimmickRushStarted?.Invoke(CurrentStageIndex, _stages[CurrentStageIndex]);
         }
     }
@@ -238,6 +240,7 @@ public class GameManager : MonoBehaviour
 
         int nextStageIndex = CurrentStageIndex + 1;
         StopStage();
+        AudioManager.Instance?.StopBGM();
         OnStageCueChanged?.Invoke("FINISH");
         _stageCueCoroutine = StartCoroutine(AdvanceAfterFinish(nextStageIndex));
     }
@@ -324,6 +327,7 @@ public class GameManager : MonoBehaviour
         }
 
         // カウントだけでなく START の表示中も入力を止め、表示が消えてから試合を進める
+        AudioManager.Instance?.PlayBGM($"music_stage{CurrentStageIndex + 1}_normal");
         OnStageCueChanged?.Invoke("START");
         yield return new WaitForSeconds(0.5f);
         _stageCueCoroutine = null;

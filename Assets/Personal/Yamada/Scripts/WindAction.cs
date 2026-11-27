@@ -1,4 +1,5 @@
 using System;
+using Scorpion.Audio;
 
 namespace Scorpion.Gimmicks
 {
@@ -11,7 +12,13 @@ namespace Scorpion.Gimmicks
         /// <inheritdoc/>
         public bool TryActivate(GimmickContext context)
         {
-            return context.StageTargets != null && context.StageTargets.TryEnableWind(context);
+            if (context.StageTargets == null || !context.StageTargets.TryEnableWind(context))
+            {
+                return false;
+            }
+
+            AudioManager.Instance?.PlaySE("se_wind");
+            return true;
         }
     }
 }
