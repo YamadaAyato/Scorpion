@@ -8,6 +8,7 @@ using UnityEngine;
 /// ・GO：READY が飛び去るのと入れ替わりに、傾きながら中央へポンと大きく出て、少し待ってから広がりながら消える
 /// READY と GO の画像（Image）はこのオブジェクトの子に置く。READY の画像の Pivot を文字の下端にしておくと、着地の潰れと揺れが下端を支点にして起きる。
 /// GO が出きったときに OnGo（ここで操作を始める）、全部消え終わったら OnFinished を呼ぶ。GO の画像を入れなければ READY だけ出す。
+/// Play は READY → GO を続けて出す。試合のカウントダウンに合わせるときは、PlayReady で READY を出したまま待ち、合図が来たら PlayGo で GO へ進める。
 /// </summary>
 public class ReadyCallEffect : MonoBehaviour
 {
@@ -74,9 +75,53 @@ public class ReadyCallEffect : MonoBehaviour
         Stop();
         SetImage(_basePosition + new Vector2(0f, DROP_HEIGHT), Vector3.one, 0f, 0f);
 
-        // Z の回転はプラスが反時計回り。揺れは 左 → 右 → 元 の順
-        _sequence = CreateReadySequence();
+        _sequence = CreateReadyEnter()
+            .AppendInterval(HOLD_DURATION)
+            .Append(CreateReadyExit());
         if (_goImage != null) _sequence.Insert(_sequence.Duration(false) - EXIT_DURATION + GO_START_DELAY, CreateGoSequence());
+        _sequence
+            .OnComplete(HandleFinished)
+            .SetUpdate(true)
+            .SetLink(gameObject);
+    }
+
+    /// <summary> READY を出して、PlayGo が呼ばれるまでそのまま止めておく（試合のカウントダウンの間）。 </summary>
+    public void PlayReady()
+    {
+        if (_image == null) return;
+
+        Stop();
+        SetImage(_basePosition + new Vector2(0f, DROP_HEIGHT), Vector3.one, 0f, 0f);
+        _sequence = CreateReadyEnter()
+            .SetUpdate(true)
+            .SetLink(gameObject);
+    }
+
+    /// <summary>
+    /// READY を飛び去らせて GO を出す。READY がまだ揺れている途中でも、今の状態から飛び去る。READY が出ていなければ GO だけ出す。
+    /// </summary>
+    public void PlayGo()
+    {
+        if (_image == null) return;
+
+        bool isReadyShown = _group != null && _group.alpha > 0f;
+        if (_sequence != null && _sequence.IsActive()) _sequence.Kill();
+        if (_loopTween != null && _loopTween.IsActive()) _loopTween.Kill();
+
+        _sequence = DOTween.Sequence();
+        if (isReadyShown)
+        {
+            // 揺れや潰れの途中で止めたときのために、角度と大きさも元へ戻しながら飛び去る
+            _sequence
+                .Append(CreateReadyExit())
+                .Join(Rotate(0f, SINK_DURATION, Ease.OutQuad))
+                .Join(_image.DOScale(Vector3.one, SINK_DURATION).SetEase(Ease.OutQuad));
+        }
+        if (_goImage != null)
+        {
+            float goStart = isReadyShown ? SINK_DURATION + GO_START_DELAY : 0f;
+            _sequence.Insert(goStart, CreateGoSequence());
+        }
         _sequence
             .OnComplete(HandleFinished)
             .SetUpdate(true)
@@ -138,8 +183,8 @@ public class ReadyCallEffect : MonoBehaviour
         OnGo?.Invoke();
     }
 
-    /// <summary> READY：落ちる → 潰れる → ぽよんと戻る → 左右に1回揺れる → 止まる → 沈む → 上へ飛び去りながら消える。 </summary>
-    private Sequence CreateReadySequence()
+    /// <summary> READY が出るところ：落ちる → 潰れる → ぽよんと戻る → 左右に1回揺れる。Z の回転はプラスが反時計回りで、揺れは 左 → 右 → 元 の順。 </summary>
+    private Sequence CreateReadyEnter()
     {
         return DOTween.Sequence()
             .Append(Move(_basePosition, FALL_DURATION, Ease.InQuad))
@@ -148,8 +193,13 @@ public class ReadyCallEffect : MonoBehaviour
             .Append(_image.DOScale(Vector3.one, RECOVER_DURATION).SetEase(Ease.OutBack))
             .Append(Rotate(SWAY_ANGLE, SWAY_DURATION * 0.25f, Ease.OutSine))
             .Append(Rotate(-SWAY_ANGLE, SWAY_DURATION * 0.5f, Ease.InOutSine))
-            .Append(Rotate(0f, SWAY_DURATION * 0.25f, Ease.InSine))
-            .AppendInterval(HOLD_DURATION)
+            .Append(Rotate(0f, SWAY_DURATION * 0.25f, Ease.InSine));
+    }
+
+    /// <summary> READY が消えるところ：少し沈む → 上へ飛び去りながら消える。 </summary>
+    private Sequence CreateReadyExit()
+    {
+        return DOTween.Sequence()
             .Append(Move(_basePosition + new Vector2(0f, -SINK_DEPTH), SINK_DURATION, Ease.OutQuad))
             .Append(Move(_basePosition + new Vector2(0f, EXIT_HEIGHT), EXIT_DURATION, Ease.InQuad))
             .Join(Fade(0f, EXIT_DURATION));
