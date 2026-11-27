@@ -11,9 +11,9 @@ namespace Scorpion.Gimmicks
     [Serializable]
     public sealed class BridgeCollapseAction : IGimmickAction
     {
-        [SerializeField, Min(1), Tooltip("一度の発動で崩す板の最大枚数")]
+        [SerializeField, Min(1), Tooltip("一度の発動で崩す最大組数。単独の板も1組として扱う")]
         private int _boardCount = 2;
-        [SerializeField, Min(0f), Tooltip("次の板が崩れるまでの時間（秒）")]
+        [SerializeField, Min(0f), Tooltip("次の組が崩れるまでの時間（秒）")]
         private float _intervalSeconds = 0.55f;
 
         /// <inheritdoc/>
@@ -25,12 +25,19 @@ namespace Scorpion.Gimmicks
                 return false;
             }
 
-            var candidates = new List<GameObject>();
+            var candidates = new List<(GameObject First, GameObject Second)>();
             foreach (AuthorScaffold support in targets.BridgeSupports)
             {
-                if (support != null && support.CurrentObject != null && support.CurrentObject.activeSelf)
+                if (support == null || support.CurrentObject == null || !support.CurrentObject.activeSelf)
                 {
-                    candidates.Add(support.CurrentObject);
+                    continue;
+                }
+
+                AuthorScaffold partner = support.PairedScaffold;
+                GameObject second = partner != null ? partner.CurrentObject : null;
+                if (partner == null || (second != null && second.activeSelf))
+                {
+                    candidates.Add((support.CurrentObject, second));
                 }
             }
 
@@ -46,14 +53,22 @@ namespace Scorpion.Gimmicks
             for (int i = 0; i < count; i++)
             {
                 int index = UnityEngine.Random.Range(0, candidates.Count);
-                GameObject board = candidates[index];
+                (GameObject first, GameObject second) = candidates[index];
+                bool paired = second != null;
                 candidates.RemoveAt(index);
                 sequence.AppendCallback(() =>
                 {
-                    if (board != null && board.activeSelf)
+                    if (first == null || !first.activeSelf || (paired && (second == null || !second.activeSelf)))
                     {
-                        board.SetActive(false);
-                        hiddenBoards.Add(board);
+                        return;
+                    }
+
+                    first.SetActive(false);
+                    hiddenBoards.Add(first);
+                    if (paired)
+                    {
+                        second.SetActive(false);
+                        hiddenBoards.Add(second);
                     }
                 });
                 if (i + 1 < count)

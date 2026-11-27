@@ -117,6 +117,7 @@ MonoBehaviour:
   _playerTwoSpawn: {fileID: 2618383067916111507}
   _playerOneRespawn: {fileID: 7476302299899977257}
   _playerTwoRespawn: {fileID: 4388548739955378288}
+  _backgroundTexture: {fileID: 2800000, guid: 593bc132823fd514f8ae54ed43232f32, type: 3}
 --- !u!114 &895579517866984593
 MonoBehaviour:
   m_ObjectHideFlags: 0

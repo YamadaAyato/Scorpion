@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Scorpion.Gimmicks;
+using Scorpion.UI;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 ///     ステージPrefab、制限時間とギミックを設定する
@@ -68,6 +70,15 @@ public class GameManager : MonoBehaviour
     private GameObject _playerOneObject;
     [SerializeField, Tooltip("2P本体")]
     private GameObject _playerTwoObject;
+    [SerializeField, Tooltip("1Pの勝利2D画像")]
+    private Image __playerOneWinImage;
+    [SerializeField, Tooltip("1Pの敗北2D画像")]
+    private Image __playerOneLoseImage;
+
+    [SerializeField, Tooltip("2Pの勝利2D画像")]
+    private Image __playerTwoWinImage;
+    [SerializeField, Tooltip("2Pの敗北2D画像")]
+    private Image __playerTwoLoseImage;
     [SerializeField, Tooltip("試合で使用するステージを進行順に並べる")]
     private List<StageDefinition> _stages = new();
     [SerializeField, Tooltip("落下から復活までの待ち時間（秒）")]
@@ -83,6 +94,7 @@ public class GameManager : MonoBehaviour
     private TimeManager _timer;
     private Coroutine _stageCueCoroutine;
     private StageLayout _stageInstance;
+    private MatchBackground _matchBackground;
 
     /// <summary>
     ///     指定されたプレイヤーが復活待ちかどうかを取得する
@@ -178,6 +190,10 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         StartMatch();
+        __playerOneLoseImage.enabled=false;
+        __playerOneWinImage.enabled=false;
+        __playerTwoLoseImage.enabled=false;
+        __playerTwoWinImage.enabled=false;
     }
 
     private void OnDisable()
@@ -265,6 +281,20 @@ public class GameManager : MonoBehaviour
                 PlayerMove playerTwo = _playerTwoObject != null ? _playerTwoObject.GetComponent<PlayerMove>() : null;
                 targets.SetPlayers(playerOne, playerTwo);
             }
+        }
+
+        if (_matchBackground == null)
+        {
+            Camera camera = Camera.main;
+            if (camera != null)
+            {
+                _matchBackground = camera.GetComponentInChildren<MatchBackground>();
+            }
+        }
+
+        if (_matchBackground != null)
+        {
+            _matchBackground.SetTexture(_stageInstance != null ? _stageInstance.BackgroundTexture : null);
         }
 
         PlacePlayer(1, isRespawn: false);
@@ -495,5 +525,20 @@ public class GameManager : MonoBehaviour
         int winner = score.PlayerOneScore == score.PlayerTwoScore ? 0
             : score.PlayerOneScore > score.PlayerTwoScore ? 1 : 2;
         OnMatchFinished?.Invoke(winner);
+        if (winner == 1)
+        {
+            __playerOneWinImage.enabled=true;
+            __playerTwoLoseImage.enabled=true;
+        }
+        if (winner == 2) 
+        {
+            __playerTwoWinImage.enabled = true;
+            __playerOneLoseImage.enabled = true;
+        }
+        else
+        {
+            __playerOneLoseImage.enabled=true ;
+            __playerTwoLoseImage.enabled=true ;
+        }
     }
 }
