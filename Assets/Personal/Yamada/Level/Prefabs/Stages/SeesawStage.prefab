@@ -200,7 +200,7 @@ MonoBehaviour:
   _seesaw: {fileID: 4632495175213856554}
   _seesawRestoringForce: 30
   _seesawDegreesPerMoment: 5
-  _seesawMaxTilt: 22
+  _seesawMaxTilt: 30
   _windObject: {fileID: 5474018692611011637}
   _gear: {fileID: 0}
   _gearDegreesPerSecond: 72
