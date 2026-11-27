@@ -1,4 +1,5 @@
 ﻿using DG.Tweening;
+using Scorpion.Audio;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,6 +9,7 @@ using UnityEngine.UI;
 /// ・EveryInterval：Interval 秒ごとに、ゆっくり重ねて（クロスフェードで）次の絵にする
 /// ・Both：上の両方
 /// 今どの絵かはシーンをまたいで覚えておく（同じゲームの間だけ）。再生中に Mode を変えても、そのまま切り替わる。
+/// シーンが始まったときに、このシーンの BGM も AudioManager で流す。
 /// </summary>
 [RequireComponent(typeof(Image))]
 public class BackgroundCycler : MonoBehaviour
@@ -34,6 +36,9 @@ public class BackgroundCycler : MonoBehaviour
     [Tooltip("EveryInterval のとき、何秒ごとに変えるか")]
     [SerializeField] private float _interval = 10f;
 
+    [Tooltip("シーンが始まったときに流す BGM の名前（AudioManager の BGM List の Name）。空なら流さない")]
+    [SerializeField] private string _sceneBgm = "music_title";
+
     private Image _image;
     private Image _fadeImage;
     private float _timer;
@@ -50,6 +55,12 @@ public class BackgroundCycler : MonoBehaviour
         _image = GetComponent<Image>();
         CreateFadeImage();
         ShowCurrent();
+    }
+
+    // AudioManager の Instance は Awake で決まるので、BGM は Start で流す
+    private void Start()
+    {
+        if (!string.IsNullOrEmpty(_sceneBgm)) AudioManager.Instance?.PlayBGM(_sceneBgm);
     }
 
     private void OnEnable()
