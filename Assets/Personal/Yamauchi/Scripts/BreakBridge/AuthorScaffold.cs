@@ -8,13 +8,19 @@ public class AuthorScaffold : MonoBehaviour
 {
     /// <summary> 現在生成されている足場を取得する </summary>
     public GameObject CurrentObject => _currentObject;
+    /// <summary> この板と一緒に崩落する板の生成元を取得する </summary>
+    public AuthorScaffold PairedScaffold => _pairedScaffold;
 
     [SerializeField, Tooltip("この位置に生成する足場Prefab")]
     private GameObject _object;
+    [SerializeField, Tooltip("再生成時に足場へ適用する板ごとのメッシュ。未指定の場合はPrefabのメッシュを使用する")]
+    private Mesh _meshOverride;
     [SerializeField, Tooltip("足場が崩れてから作り直すまでの時間（秒）")]
     private float _interval;
     [SerializeField, Tooltip("プレイヤーが乗っても崩れない復活用の足場にする")]
     private bool _isPermanent;
+    [SerializeField, Tooltip("この板と一緒に崩落する相方。未指定の場合は単独で崩落する")]
+    private AuthorScaffold _pairedScaffold;
 
     private GameObject _currentObject;
     private Coroutine _respawn;
@@ -57,6 +63,13 @@ public class AuthorScaffold : MonoBehaviour
 
         _currentObject = null;
         _respawn = StartCoroutine(Respawn());
+
+        // 自分の参照を先に外し、相方の通知から同じ板へ戻らないようにする
+        if (_pairedScaffold != null && _pairedScaffold.CurrentObject != null &&
+            _pairedScaffold.CurrentObject.TryGetComponent(out Scaffold pairedBoard))
+        {
+            pairedBoard.ZeroDurability();
+        }
     }
 
     /// <summary>
@@ -66,6 +79,11 @@ public class AuthorScaffold : MonoBehaviour
     {
         _currentObject = Instantiate(_object, transform.position, transform.rotation, transform);
         _currentObject.tag = "Ground";
+        if (_meshOverride != null && _currentObject.TryGetComponent(out MeshFilter meshFilter))
+        {
+            meshFilter.sharedMesh = _meshOverride;
+        }
+
         if (_currentObject.TryGetComponent(out Scaffold scaffold))
         {
             if (_isPermanent)
