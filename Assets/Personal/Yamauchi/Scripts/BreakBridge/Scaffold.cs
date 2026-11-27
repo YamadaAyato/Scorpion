@@ -17,14 +17,18 @@ public class Scaffold : MonoBehaviour
     [SerializeField, Tooltip("接触時間が3分の2に達したときの警告色")]
     private Color _criticalColor = new(1f, 0.2f, 0.12f);
 
-    private Renderer _renderer;
+    private Renderer[] _renderers;
     private MaterialPropertyBlock _colorProperties;
-    private int _colorPropertyId;
+    private Scaffold _contactSource;
+    private Scaffold _pairedBoard;
     private int _warningStage;
     private double _contactSeconds;
     private double _lastContactStep = double.NegativeInfinity;
     private bool _isCollapsing;
     private bool _isPermanent;
+
+    private static readonly int BASE_COLOR_ID = Shader.PropertyToID("_BaseColor");
+    private static readonly int COLOR_ID = Shader.PropertyToID("_Color");
 
     /// <summary>
     ///     復活用の足場として、乗っても崩れない状態にする
@@ -32,6 +36,16 @@ public class Scaffold : MonoBehaviour
     public void KeepIntact()
     {
         _isPermanent = true;
+    }
+
+    /// <summary>
+    ///     相方と接触時間および警告色を共有する
+    /// </summary>
+    internal void LinkContact(Scaffold partner)
+    {
+        _pairedBoard = partner;
+        _contactSource = null;
+        partner._contactSource = this;
     }
 
     /// <summary>
@@ -54,30 +68,33 @@ public class Scaffold : MonoBehaviour
 
     private void Awake()
     {
-        _renderer = GetComponentInChildren<Renderer>();
-        Material material = _renderer != null ? _renderer.sharedMaterial : null;
-        if (material == null)
-        {
-            return;
-        }
-
-        string colorProperty = material.HasProperty("_BaseColor") ? "_BaseColor" : "_Color";
-        if (material.HasProperty(colorProperty))
-        {
-            _colorPropertyId = Shader.PropertyToID(colorProperty);
-            _colorProperties = new MaterialPropertyBlock();
-        }
+        _renderers = GetComponentsInChildren<Renderer>();
+        _colorProperties = new MaterialPropertyBlock();
     }
 
     private void OnCollisionStay(Collision collision)
     {
-        if (_isCollapsing || _isPermanent || !collision.gameObject.CompareTag("Player") ||
-            _lastContactStep == Time.fixedTimeAsDouble)
+        if (_isCollapsing || _isPermanent || !collision.gameObject.CompareTag("Player"))
         {
             return;
         }
 
-        // 2人が同じ板に乗っても、1回の物理更新につき実際に経過した時間だけ加算する
+        // 静止したプレイヤーも、足場が崩れるまで接触時間を数え続ける
+        collision.rigidbody?.WakeUp();
+        Scaffold source = _contactSource != null ? _contactSource : this;
+        source.AccumulateContact();
+    }
+
+    /// <summary>
+    ///     同じ組の複数枚や複数人が接触しても、物理更新1回分の時間だけ加算する
+    /// </summary>
+    private void AccumulateContact()
+    {
+        if (_isCollapsing || _lastContactStep == Time.fixedTimeAsDouble)
+        {
+            return;
+        }
+
         _lastContactStep = Time.fixedTimeAsDouble;
         _contactSeconds += Time.fixedDeltaTime;
         double progress = (_contactSeconds + 0.0001) / Mathf.Max(0.01f, _collapseAfterSeconds);
@@ -87,7 +104,12 @@ public class Scaffold : MonoBehaviour
             return;
         }
 
-        SetWarningStage((int)(progress * 3d));
+        int warningStage = (int)(progress * 3d);
+        SetWarningStage(warningStage);
+        if (_pairedBoard != null)
+        {
+            _pairedBoard.SetWarningStage(warningStage);
+        }
     }
 
     /// <summary>
@@ -95,14 +117,27 @@ public class Scaffold : MonoBehaviour
     /// </summary>
     private void SetWarningStage(int stage)
     {
-        if (stage == _warningStage || _renderer == null || _colorProperties == null)
+        if (stage == _warningStage)
         {
             return;
         }
 
         _warningStage = stage;
-        _renderer.GetPropertyBlock(_colorProperties);
-        _colorProperties.SetColor(_colorPropertyId, stage == 1 ? _warningColor : _criticalColor);
-        _renderer.SetPropertyBlock(_colorProperties);
+        foreach (Renderer renderer in _renderers)
+        {
+            Material material = renderer.sharedMaterial;
+            if (material == null)
+            {
+                continue;
+            }
+
+            int colorProperty = material.HasProperty(BASE_COLOR_ID) ? BASE_COLOR_ID : COLOR_ID;
+            if (material.HasProperty(colorProperty))
+            {
+                renderer.GetPropertyBlock(_colorProperties);
+                _colorProperties.SetColor(colorProperty, stage == 1 ? _warningColor : _criticalColor);
+                renderer.SetPropertyBlock(_colorProperties);
+            }
+        }
     }
 }

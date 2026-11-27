@@ -368,6 +368,8 @@ public class PlayerMove : MonoBehaviour
         bool hasFloorContact = false;
         float sideNormalX = 0f;
         float centerY = _rigidbody.worldCenterOfMass.y;
+        Rigidbody support = other.attachedRigidbody;
+        bool isScaffold = support != null && support.TryGetComponent(out Scaffold _);
         for (int i = 0; i < collision.contactCount; i++)
         {
             ContactPoint contact = collision.GetContact(i);
@@ -377,7 +379,9 @@ public class PlayerMove : MonoBehaviour
                 hasFloorContact = true;
                 break;
             }
-            if (sideNormalX == 0f && Mathf.Abs(normal.y) < 0.5f && Mathf.Abs(normal.x) > 0.6f)
+            // 足元の橋の継ぎ目で、横入力を壁扱いして止めない
+            if (sideNormalX == 0f && Mathf.Abs(normal.y) < 0.5f && Mathf.Abs(normal.x) > 0.6f &&
+                (!isScaffold || contact.point.y >= centerY))
             {
                 sideNormalX = normal.x;
             }
@@ -388,7 +392,6 @@ public class PlayerMove : MonoBehaviour
             _sideContacts[other] = sideNormalX;
         }
 
-        Rigidbody support = other.attachedRigidbody;
         bool isGround = other.CompareTag("Ground") || (support != null && support.CompareTag("Ground"));
         // 足場に持ち上げられている間も、足元に床があれば接地する
         if (hasFloorContact && isGround && Time.fixedTime >= _ignoreGroundUntil)

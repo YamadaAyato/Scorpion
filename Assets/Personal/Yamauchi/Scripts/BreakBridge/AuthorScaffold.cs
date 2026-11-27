@@ -92,6 +92,11 @@ public class AuthorScaffold : MonoBehaviour
             }
 
             scaffold.HandlerDestroy += HandleScaffoldDestroyed;
+            if (_pairedScaffold != null && _pairedScaffold.CurrentObject != null &&
+                _pairedScaffold.CurrentObject.TryGetComponent(out Scaffold pairedBoard))
+            {
+                scaffold.LinkContact(pairedBoard);
+            }
         }
     }
 

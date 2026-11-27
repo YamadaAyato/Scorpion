@@ -45,17 +45,24 @@ namespace Scorpion.Gimmicks
 
         private void FixedUpdate()
         {
-            if (_canTransferImpact)
-            {
-                _incomingVelocity = _body.linearVelocity;
-            }
+            _incomingVelocity = _body.linearVelocity;
         }
 
         private void OnCollisionEnter(Collision collision)
         {
             Rigidbody target = collision.rigidbody;
-            if (!_canTransferImpact || target == null || target == _launcher ||
-                !target.TryGetComponent(out PlayerMove player) ||
+            if (target == null || !target.TryGetComponent(out PlayerMove player))
+            {
+                return;
+            }
+
+            if (!_canTransferImpact)
+            {
+                DeflectFromAbove(target, collision);
+                return;
+            }
+
+            if (target == _launcher ||
                 _incomingVelocity.sqrMagnitude < MIN_IMPACT_SPEED * MIN_IMPACT_SPEED ||
                 Vector3.Dot(_incomingVelocity, target.worldCenterOfMass - _body.worldCenterOfMass) <= 0f)
             {
@@ -80,6 +87,34 @@ namespace Scorpion.Gimmicks
             float lift = Mathf.Min(_incomingVelocity.magnitude * _impactTransfer * 0.5f, MAX_LIFT_SPEED);
             velocity.y = Mathf.Max(velocity.y, lift);
             target.linearVelocity = velocity;
+        }
+
+        /// <summary>
+        ///     上からプレイヤーに当たった隕石を横へ逃がして、足場へ押し込み続けるのを防ぐ
+        /// </summary>
+        private void DeflectFromAbove(Rigidbody target, Collision collision)
+        {
+            if (_incomingVelocity.y >= -MIN_IMPACT_SPEED)
+            {
+                return;
+            }
+
+            for (int i = 0; i < collision.contactCount; i++)
+            {
+                if (collision.GetContact(i).normal.y <= 0.5f)
+                {
+                    continue;
+                }
+
+                float offset = _body.worldCenterOfMass.x - target.worldCenterOfMass.x;
+                float direction = Mathf.Abs(offset) > 0.05f ? Mathf.Sign(offset) :
+                    (_incomingVelocity.x < 0f ? -1f : 1f);
+                _body.linearVelocity = new Vector3(direction * 5f, 3f, 0f);
+                Vector3 velocity = target.linearVelocity;
+                velocity.y = Mathf.Max(0f, velocity.y);
+                target.linearVelocity = velocity;
+                return;
+            }
         }
     }
 }
