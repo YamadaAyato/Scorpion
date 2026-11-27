@@ -9,11 +9,15 @@ using UnityEngine.UI;
 /// ・覆う：ボタンの星の複製を一番手前の Canvas に置き、回しながら画面を覆いきるまで大きくする
 /// ・見せる：覆ったあと、シーンが読み込まれるか Reveal を呼ばれたら、回しながら画面の真ん中へ小さくして消し、新しい画面を見せる
 /// ・同じシーンの中でパネルを切り替えるとき：覆いきった瞬間に onCovered を呼び（ここでパネルを切り替える）、そのまま見せる
+/// 覆いきったときは、どの切り替えでも OnAnyCovered を呼ぶ（画面が隠れている間に背景を変えるときなどに使う）。
 /// シーンをまたいで残るよう DontDestroyOnLoad にし、消えたら自分を削除する。切り替えの間は、画面全体でクリックを受け付けない。
 /// 星の位置は画面のピクセルで扱うので、元の星は Screen Space - Overlay の Canvas に置かれている必要がある。
 /// </summary>
 public class StarTransitionOverlay : MonoBehaviour
 {
+    /// <summary> どれかの切り替えで、星が画面を覆いきったとき（画面が完全に隠れている間）。 </summary>
+    public static event Action OnAnyCovered;
+
     private RectTransform _star;
     private Image _blocker;
     private float _revealDuration;
@@ -84,6 +88,7 @@ public class StarTransitionOverlay : MonoBehaviour
     private void HandleCovered()
     {
         _isCovered = true;
+        OnAnyCovered?.Invoke();
         if (_onCovered != null)
         {
             _onCovered.Invoke();
