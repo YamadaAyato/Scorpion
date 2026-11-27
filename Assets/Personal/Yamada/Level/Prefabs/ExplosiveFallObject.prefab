@@ -173,3 +173,66 @@ MonoBehaviour:
   _boomMaterial: {fileID: 2100000, guid: 4b46ed586e9e421c9351fc8d13aa42b9, type: 2}
   _lineMaterial: {fileID: 2100000, guid: 8c0034cecf7c4f67a93c19722ae35283, type: 2}
   _hideOriginalRing: 0
+  _settings:
+    RadiusScale: 1
+    FanUpOnGround: 1
+    GroundFanAngle: 220
+    GroundCheckDistance: 0.9
+    BurstColors:
+    - {r: 1, g: 0.3, b: 0.25, a: 1}
+    - {r: 1, g: 0.6, b: 0.1, a: 1}
+    - {r: 1, g: 0.95, b: 0.4, a: 1}
+    BurstSizes:
+    - 1.05
+    - 0.8
+    - 0.55
+    BurstSeconds: 0.28
+    BurstPopScale: 1.15
+    FireColors:
+    - {r: 1, g: 0.85, b: 0.25, a: 1}
+    - {r: 1, g: 0.6, b: 0.12, a: 1}
+    - {r: 1, g: 0.4, b: 0.15, a: 1}
+    FireCount: 7
+    FireSize: {x: 0.26, y: 0.38}
+    FireLifetimeSeconds: {x: 0.32, y: 0.48}
+    FireReach: {x: 0.12, y: 0.4}
+    SmokeColors:
+    - {r: 0.3, g: 0.26, b: 0.36, a: 1}
+    - {r: 0.4, g: 0.3, b: 0.36, a: 1}
+    - {r: 0.24, g: 0.22, b: 0.3, a: 1}
+    SmokeCount: 9
+    SmokeSize: {x: 0.3, y: 0.42}
+    SmokeLifetimeSeconds: {x: 0.7, y: 1}
+    SmokeReach: {x: 0.4, y: 0.75}
+    SmokeRiseSpeed: 0.9
+    SmokePopScale: 1.25
+    LineCount: 12
+    LineColors:
+    - {r: 1, g: 1, b: 0.95, a: 1}
+    - {r: 1, g: 0.86, b: 0.25, a: 1}
+    LineWidth: 0.06
+    LineSeconds: 0.22
+    LineReach: {x: 0.4, y: 1.1}
+    LineLength: 0.45
+    DebrisColors:
+    - {r: 0.62, g: 0.42, b: 0.32, a: 1}
+    - {r: 0.5, g: 0.36, b: 0.36, a: 1}
+    - {r: 0.72, g: 0.52, b: 0.34, a: 1}
+    DebrisCount: 8
+    DebrisSize: {x: 0.08, y: 0.14}
+    DebrisLifetimeSeconds: {x: 0.6, y: 0.9}
+    DebrisSpeed: {x: 1.3, y: 2.2}
+    DebrisGravity: 2.2
+    DebrisSpin: 10
+    EmberColors:
+    - {r: 1, g: 0.55, b: 0.1, a: 1}
+    - {r: 1, g: 0.85, b: 0.2, a: 1}
+    - {r: 1, g: 0.32, b: 0.2, a: 1}
+    EmberCount: 10
+    EmberSize: {x: 0.035, y: 0.06}
+    EmberLifetimeSeconds: {x: 0.45, y: 0.75}
+    EmberSpeed: {x: 1.6, y: 2.6}
+    EmberGravity: 1.6
+    ShakeAmplitude: 0.15
+    ShakeSeconds: 0.3
+    ShakeFrequency: 28
