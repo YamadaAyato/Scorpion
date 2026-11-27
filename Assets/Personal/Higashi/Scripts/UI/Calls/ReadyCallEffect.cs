@@ -3,18 +3,25 @@ using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
-/// 試合開始前の「READY?」コール。上からドスンと落ちてきて、着地で横に潰れてぽよんと戻り、
-/// シーソーのように左右へ1回揺れてから、少し沈んで上へ飛び去りながら消える。
-/// READY の画像（Image）はこのオブジェクトの子に置く。画像の Pivot を文字の下端にしておくと、着地の潰れと揺れが下端を支点にして起きる。
-/// 終わったら OnFinished を呼ぶ（3・2・1 や START へつなぐ）。
+/// 試合開始前の「READY?」→「GO!」コール。
+/// ・READY：上からドスンと落ちてきて、着地で横に潰れてぽよんと戻り、シーソーのように左右へ1回揺れてから、少し沈んで上へ飛び去りながら消える
+/// ・GO：READY が飛び去るのと入れ替わりに、傾きながら中央へポンと大きく出て、少し待ってから広がりながら消える
+/// READY と GO の画像（Image）はこのオブジェクトの子に置く。READY の画像の Pivot を文字の下端にしておくと、着地の潰れと揺れが下端を支点にして起きる。
+/// GO が出きったときに OnGo（ここで操作を始める）、全部消え終わったら OnFinished を呼ぶ。GO の画像を入れなければ READY だけ出す。
 /// </summary>
 public class ReadyCallEffect : MonoBehaviour
 {
+    /// <summary> GO が出きったとき（ここで操作を始める）。 </summary>
+    public event Action OnGo;
+
     /// <summary> コールが消え終わったとき。 </summary>
     public event Action OnFinished;
 
     [Tooltip("動かす READY の画像")]
     [SerializeField] private RectTransform _image;
+
+    [Tooltip("READY のあとに出す GO の画像。空なら READY だけ出す")]
+    [SerializeField] private RectTransform _goImage;
 
     [Tooltip("再生を始めたときに自動で出す。試合の流れから出すときはオフにして Play を呼ぶ")]
     [SerializeField] private bool _playOnStart = true;
@@ -23,6 +30,7 @@ public class ReadyCallEffect : MonoBehaviour
     [SerializeField] private float _loopDelay;
 
     private CanvasGroup _group;
+    private CanvasGroup _goGroup;
     private Vector2 _basePosition;
     private Sequence _sequence;
     private Tween _loopTween;
@@ -46,6 +54,18 @@ public class ReadyCallEffect : MonoBehaviour
     // 落ちる時間のうち、透明から見えるようになるまでの割合
     private const float FADE_IN_RATE = 0.4f;
 
+    // GO：出始めの傾き（度）、出たときの大きさ（行き過ぎ）、消えるときの大きさ
+    private const float GO_START_ANGLE = -10f;
+    private const float GO_POP_SCALE = 1.2f;
+    private const float GO_EXIT_SCALE = 1.4f;
+
+    // GO の時間（秒）。READY が飛び去り始めてから GO が出始めるまで、ポンと出る、元の大きさに戻る、止まる、消える
+    private const float GO_START_DELAY = 0.15f;
+    private const float GO_POP_DURATION = 0.2f;
+    private const float GO_SETTLE_DURATION = 0.12f;
+    private const float GO_HOLD_DURATION = 0.4f;
+    private const float GO_EXIT_DURATION = 0.25f;
+
     /// <summary> コールを最初から出す。 </summary>
     public void Play()
     {
@@ -55,18 +75,9 @@ public class ReadyCallEffect : MonoBehaviour
         SetImage(_basePosition + new Vector2(0f, DROP_HEIGHT), Vector3.one, 0f, 0f);
 
         // Z の回転はプラスが反時計回り。揺れは 左 → 右 → 元 の順
-        _sequence = DOTween.Sequence()
-            .Append(Move(_basePosition, FALL_DURATION, Ease.InQuad))
-            .Join(Fade(1f, FALL_DURATION * FADE_IN_RATE))
-            .Append(_image.DOScale(SQUASH_SCALE, SQUASH_DURATION).SetEase(Ease.OutQuad))
-            .Append(_image.DOScale(Vector3.one, RECOVER_DURATION).SetEase(Ease.OutBack))
-            .Append(Rotate(SWAY_ANGLE, SWAY_DURATION * 0.25f, Ease.OutSine))
-            .Append(Rotate(-SWAY_ANGLE, SWAY_DURATION * 0.5f, Ease.InOutSine))
-            .Append(Rotate(0f, SWAY_DURATION * 0.25f, Ease.InSine))
-            .AppendInterval(HOLD_DURATION)
-            .Append(Move(_basePosition + new Vector2(0f, -SINK_DEPTH), SINK_DURATION, Ease.OutQuad))
-            .Append(Move(_basePosition + new Vector2(0f, EXIT_HEIGHT), EXIT_DURATION, Ease.InQuad))
-            .Join(Fade(0f, EXIT_DURATION))
+        _sequence = CreateReadySequence();
+        if (_goImage != null) _sequence.Insert(_sequence.Duration(false) - EXIT_DURATION + GO_START_DELAY, CreateGoSequence());
+        _sequence
             .OnComplete(HandleFinished)
             .SetUpdate(true)
             .SetLink(gameObject);
@@ -80,17 +91,20 @@ public class ReadyCallEffect : MonoBehaviour
         _sequence = null;
         _loopTween = null;
         if (_image != null) SetImage(_basePosition, Vector3.one, 0f, 0f);
+        if (_goImage != null) SetGo(Vector3.one, 0f, 0f);
     }
 
     private void Awake()
     {
+        if (_goImage != null)
+        {
+            _goGroup = GetOrAddCanvasGroup(_goImage);
+            _goGroup.alpha = 0f;
+        }
         if (_image == null) return;
 
         _basePosition = _image.anchoredPosition;
-        _group = _image.GetComponent<CanvasGroup>();
-        if (_group == null) _group = _image.gameObject.AddComponent<CanvasGroup>();
-        _group.interactable = false;
-        _group.blocksRaycasts = false;
+        _group = GetOrAddCanvasGroup(_image);
         _group.alpha = 0f;
     }
 
@@ -104,10 +118,11 @@ public class ReadyCallEffect : MonoBehaviour
         Stop();
     }
 
-    /// <summary> このコンポーネントを付けたときに、子の Image を自動で探して入れる。 </summary>
+    /// <summary> このコンポーネントを付けたときに、子の Image と Go を自動で探して入れる。 </summary>
     private void Reset()
     {
         _image = transform.Find("Image") as RectTransform;
+        _goImage = transform.Find("Go") as RectTransform;
     }
 
     /// <summary> 消え終わったとき。知らせてから、くり返す設定なら次を予約する。 </summary>
@@ -117,6 +132,44 @@ public class ReadyCallEffect : MonoBehaviour
         if (_loopDelay > 0f) _loopTween = DOVirtual.DelayedCall(_loopDelay, Play, true).SetLink(gameObject);
     }
 
+    /// <summary> GO が出きったとき。 </summary>
+    private void HandleGo()
+    {
+        OnGo?.Invoke();
+    }
+
+    /// <summary> READY：落ちる → 潰れる → ぽよんと戻る → 左右に1回揺れる → 止まる → 沈む → 上へ飛び去りながら消える。 </summary>
+    private Sequence CreateReadySequence()
+    {
+        return DOTween.Sequence()
+            .Append(Move(_basePosition, FALL_DURATION, Ease.InQuad))
+            .Join(Fade(1f, FALL_DURATION * FADE_IN_RATE))
+            .Append(_image.DOScale(SQUASH_SCALE, SQUASH_DURATION).SetEase(Ease.OutQuad))
+            .Append(_image.DOScale(Vector3.one, RECOVER_DURATION).SetEase(Ease.OutBack))
+            .Append(Rotate(SWAY_ANGLE, SWAY_DURATION * 0.25f, Ease.OutSine))
+            .Append(Rotate(-SWAY_ANGLE, SWAY_DURATION * 0.5f, Ease.InOutSine))
+            .Append(Rotate(0f, SWAY_DURATION * 0.25f, Ease.InSine))
+            .AppendInterval(HOLD_DURATION)
+            .Append(Move(_basePosition + new Vector2(0f, -SINK_DEPTH), SINK_DURATION, Ease.OutQuad))
+            .Append(Move(_basePosition + new Vector2(0f, EXIT_HEIGHT), EXIT_DURATION, Ease.InQuad))
+            .Join(Fade(0f, EXIT_DURATION));
+    }
+
+    /// <summary> GO：傾いた小さい状態からポンと大きく出る → 元の大きさに戻る（ここで OnGo）→ 止まる → 広がりながら消える。 </summary>
+    private Sequence CreateGoSequence()
+    {
+        // 始まりの値は、動き出す前の状態に左右されないよう、すべて数値で決めておく
+        return DOTween.Sequence()
+            .AppendCallback(() => SetGo(Vector3.zero, GO_START_ANGLE, 1f))
+            .Append(DOVirtual.Float(0f, GO_POP_SCALE, GO_POP_DURATION, SetGoScale).SetEase(Ease.OutBack))
+            .Join(DOVirtual.Float(GO_START_ANGLE, 0f, GO_POP_DURATION, SetGoAngle).SetEase(Ease.OutBack))
+            .Append(DOVirtual.Float(GO_POP_SCALE, 1f, GO_SETTLE_DURATION, SetGoScale).SetEase(Ease.OutQuad))
+            .AppendCallback(HandleGo)
+            .AppendInterval(GO_HOLD_DURATION)
+            .Append(DOVirtual.Float(1f, GO_EXIT_SCALE, GO_EXIT_DURATION, SetGoScale).SetEase(Ease.OutQuad))
+            .Join(DOVirtual.Float(1f, 0f, GO_EXIT_DURATION, value => _goGroup.alpha = value).SetEase(Ease.Linear));
+    }
+
     /// <summary> 画像の位置・大きさ・角度・濃さをすぐ変える。 </summary>
     private void SetImage(Vector2 position, Vector3 scale, float angle, float alpha)
     {
@@ -124,6 +177,34 @@ public class ReadyCallEffect : MonoBehaviour
         _image.localScale = scale;
         _image.localRotation = Quaternion.Euler(0f, 0f, angle);
         if (_group != null) _group.alpha = alpha;
+    }
+
+    /// <summary> GO の大きさ・角度・濃さをすぐ変える。 </summary>
+    private void SetGo(Vector3 scale, float angle, float alpha)
+    {
+        _goImage.localScale = scale;
+        _goImage.localRotation = Quaternion.Euler(0f, 0f, angle);
+        if (_goGroup != null) _goGroup.alpha = alpha;
+    }
+
+    private void SetGoScale(float scale)
+    {
+        _goImage.localScale = Vector3.one * scale;
+    }
+
+    private void SetGoAngle(float angle)
+    {
+        _goImage.localRotation = Quaternion.Euler(0f, 0f, angle);
+    }
+
+    /// <summary> 画像に CanvasGroup を付けて（なければ足して）、クリックを受けないようにする。 </summary>
+    private static CanvasGroup GetOrAddCanvasGroup(Component target)
+    {
+        var group = target.GetComponent<CanvasGroup>();
+        if (group == null) group = target.gameObject.AddComponent<CanvasGroup>();
+        group.interactable = false;
+        group.blocksRaycasts = false;
+        return group;
     }
 
     private Tween Move(Vector2 target, float duration, Ease ease)
