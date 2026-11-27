@@ -1,0 +1,199 @@
+{
+    "version": 1,
+    "name": "CharaceterSelectAction",
+    "maps": [
+        {
+            "name": "Select1",
+            "id": "f21586ec-44bb-45ee-9fac-d24e032abe9e",
+            "actions": [
+                {
+                    "name": "Left",
+                    "type": "Button",
+                    "id": "0e728b94-4759-4350-bcf3-b67519f45be2",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Right",
+                    "type": "Button",
+                    "id": "9d07f17b-1558-4046-b56f-1270ac9503af",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Decision",
+                    "type": "Button",
+                    "id": "52f6f077-067b-449c-8e7d-1f2f88a27f66",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "c341aba0-3644-4620-a416-045ae50f372a",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Left",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "49587bf4-92a0-4eec-adc3-917bceb3f8ad",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Right",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1d1c634a-c914-4093-b057-42c5132c0dd6",
+                    "path": "<Keyboard>/z",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Decision",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Select2",
+            "id": "5c7c76cf-8616-4f77-bc38-289ab0cfa6c0",
+            "actions": [
+                {
+                    "name": "Left",
+                    "type": "Button",
+                    "id": "3c38aa74-759b-42ed-a667-5ac47335ca07",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Right",
+                    "type": "Button",
+                    "id": "9e719fde-ba5a-4fdf-8012-3cc374df6586",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Decision",
+                    "type": "Button",
+                    "id": "03222a93-55e1-4b5b-bc14-6be73b218f98",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "75160bcb-b26a-4682-9150-871518f1f3cc",
+                    "path": "<Keyboard>/leftArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Left",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7f998aac-8095-4169-86f1-62d15e9e7ff3",
+                    "path": "<Keyboard>/rightArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Right",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "eb01c90d-05aa-478a-b53f-1dc9c6a3da6a",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Decision",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Wait1",
+            "id": "485fe9d0-5ca9-4a57-9d3b-886d111463f2",
+            "actions": [
+                {
+                    "name": "Return",
+                    "type": "Button",
+                    "id": "1d938cc8-840e-49ea-aa15-4678e16b3ca6",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "79a7585f-79b4-43c5-9664-67bd629f9a09",
+                    "path": "<Keyboard>/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Return",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Wait2",
+            "id": "994ab578-c92e-48e4-a411-c246d23f6ff6",
+            "actions": [
+                {
+                    "name": "Return",
+                    "type": "Button",
+                    "id": "719fb1dc-aca2-4920-97b2-49bdd7f77cd7",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "dd008330-3c79-494e-af0e-dbdf8d71f3b0",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Return",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
