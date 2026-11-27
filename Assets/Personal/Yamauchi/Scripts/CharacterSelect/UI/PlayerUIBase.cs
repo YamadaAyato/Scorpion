@@ -12,13 +12,33 @@ public class PlayerUIBase : MonoBehaviour
     [Header("オブジェクトの位置")]
     [SerializeField] private Transform _charaTransform;
 
+    [Header("名前")]
+    [SerializeField] private Text _text;
+
+    [Header("決定表示")]
+    [SerializeField] private Text _dText;
+
+    [Header("左右移動の音")]
+    [SerializeField] private AudioClip _moveClip;
+
+    [Header("決定音")]
+    [SerializeField] private AudioClip _decisionClip;
+
+    [Header("戻る時の音")]
+    [SerializeField] private AudioClip _returnClip;
+
     private int _index = 0;
     private GameObject _currentObject;
     private bool _isGo;
+    private AudioSource _source;
 
     public bool IsGo => _isGo;
 
-    private void Start() => CreateObject();
+    private void Start()
+    {
+        CreateObject();
+        _source = GetComponent<AudioSource>();
+    }
 
     protected void Receive(string name)
     {
@@ -26,6 +46,7 @@ public class PlayerUIBase : MonoBehaviour
         {
             case "Left":
 
+                _source.PlayOneShot(_moveClip);
                 _isGo = false;
                 if (_index > 0)
                     _index--;
@@ -37,6 +58,7 @@ public class PlayerUIBase : MonoBehaviour
 
             case "Right":
 
+                _source.PlayOneShot(_moveClip);
                 _isGo = false;
                 if (_index < _info.CharaList.Count - 1)
                     _index++;
@@ -47,7 +69,9 @@ public class PlayerUIBase : MonoBehaviour
                 break;
 
             case "Decision":
+                _source.PlayOneShot(_decisionClip);
                 _isGo = true;
+                _dText.text = "決定！";
                 break;
         }
     }
@@ -57,6 +81,8 @@ public class PlayerUIBase : MonoBehaviour
         switch (name)
         {
             case "Return":
+                _source.PlayOneShot(_returnClip);
+                _dText.text = null;
                 break;
         }
     }
@@ -64,6 +90,7 @@ public class PlayerUIBase : MonoBehaviour
     private void CreateObject()
     {
         _charaImage.sprite = _info.CharaList[_index].Sprite;
+        _text.text = _info.CharaList[_index].CharacterName;
 
         if (_currentObject != null)
         {

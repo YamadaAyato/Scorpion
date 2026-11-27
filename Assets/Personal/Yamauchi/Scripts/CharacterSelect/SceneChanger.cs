@@ -1,13 +1,18 @@
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class SceneChanger : MonoBehaviour
 {
     [SerializeField] private string _sceneName;
 
     [SerializeField] private List<PlayerUIBase> _bases = new();
+
+    [SerializeField] private Image _fadeImage;
 
     private static Action OnAction;
 
@@ -19,6 +24,8 @@ public class SceneChanger : MonoBehaviour
 
     private bool _active = true;
 
+    private void Start() => _fadeImage.DOFade(0f, 1f);
+
     private void Update()
     {
         for (int i = 0; i < _bases.Count; i++)
@@ -29,8 +36,14 @@ public class SceneChanger : MonoBehaviour
             if (i == _bases.Count - 1 && _active)
             {
                 OnAction.Invoke();
-                SceneManager.LoadScene(_sceneName);
+                ChangeFade().Forget();
             }
         }
+    }
+
+    private async UniTask ChangeFade()
+    {
+        await _fadeImage.DOFade(1f, 1f).AsyncWaitForCompletion();
+        SceneManager.LoadScene(_sceneName);
     }
 }

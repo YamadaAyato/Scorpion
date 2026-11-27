@@ -23,11 +23,7 @@ public struct Chara
     [Header("キャラ名")]
     [SerializeField] private string _characterName;
 
-    [Header("二つ名")]
-    [SerializeField] private string _charaExplanation;
-
     public Sprite Sprite => _sprite;
     public GameObject Character => _charaPrefab;
     public string CharacterName => _characterName;
-    public string CharaExplanation => _charaExplanation;
 }
